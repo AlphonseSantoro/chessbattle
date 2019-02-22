@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/white_promote"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/popup_background"
+    android:orientation="vertical"
+    android:layout_margin="8dp"
+    app:layout_constraintDimensionRatio="1:1">
+
+    <ImageView
+        android:id="@+id/promote_queen"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.25"
+        android:src="@drawable/ic_black_queen" />
+
+    <ImageView
+        android:id="@+id/promote_rook"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.25"
+        android:src="@drawable/ic_black_rook" />
+
+    <ImageView
+        android:id="@+id/promote_knight"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.25"
+        android:src="@drawable/ic_black_knight" />
+
+    <ImageView
+        android:id="@+id/promote_bishop"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.25"
+        android:src="@drawable/ic_black_bishop" />
+</LinearLayout>

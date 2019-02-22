@@ -1,13 +1,10 @@
 package no.kristiania.alphonsesantoro.chessbattle.game.pieces
 
-import android.view.View
-import android.widget.ImageView
-import no.kristiania.alphonsesantoro.chessbattle.R
-import no.kristiania.alphonsesantoro.chessbattle.game.Game
-import no.kristiania.alphonsesantoro.chessbattle.util.asInt
+import no.kristiania.alphonsesantoro.chessbattle.game.Color
+import no.kristiania.alphonsesantoro.chessbattle.game.Coordinate
 
-class Rook(boardView: View, resource: Int, color: Game.Color, tag: Char, square: ImageView? = null) :
-    Piece(boardView, resource, color, tag, square) {
+class Rook(resource: Int, color: Color, tag: Char, coordinate: Coordinate) :
+    Piece(resource, color, tag, coordinate) {
 
     override fun showPossibleMoves(show: Boolean) {
         showVerticalAndHorizontal(show)

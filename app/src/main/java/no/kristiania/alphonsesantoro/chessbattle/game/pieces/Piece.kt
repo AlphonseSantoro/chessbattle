@@ -1,148 +1,120 @@
 package no.kristiania.alphonsesantoro.chessbattle.game.pieces
 
-import android.view.View
-import android.widget.ImageView
+import jstockfish.Uci
 import no.kristiania.alphonsesantoro.chessbattle.R
+import no.kristiania.alphonsesantoro.chessbattle.game.Color
+import no.kristiania.alphonsesantoro.chessbattle.game.Coordinate
 import no.kristiania.alphonsesantoro.chessbattle.game.Game
 import no.kristiania.alphonsesantoro.chessbattle.util.asInt
 
 abstract class Piece(
-    val boardView: View,
     val resource: Int,
-    val color: Game.Color,
+    val color: Color,
     val tag: Char,
-    var square: ImageView? = null,
-    var promoteRank: Int? = null
+    var coordinate: Coordinate,
+    var promoteRank: Int? = null,
+    private var blockingPiece: Boolean = false
 ) {
 
     init {
-        promoteRank = if (color == Game.Color.WHITE) 8 else 1
+        promoteRank = if (color == Color.WHITE) 8 else 1
     }
 
-    internal fun isLegalSquare(show: Boolean, identifier: String): Boolean {
-        val foregroundId = if (show) R.drawable.ic_tile_suggestion else R.drawable.ic_blank_tile
-        val id = boardView.resources.getIdentifier(identifier, "id", boardView.context!!.packageName)
-        val otherSquare = boardView.findViewById<ImageView>(id) ?: return false
-        if (otherSquare != square && isPieceBlocking(otherSquare, color, foregroundId)) return false
-        if (otherSquare != square) {
-            if(this is Pawn && otherSquare.contentDescription[0] != square!!.contentDescription[0]) return false
-            otherSquare.foreground = boardView.resources.getDrawable(foregroundId, boardView.context.theme)
-        }
-        return true
-    }
-
-    fun isPieceBlocking(otherTile: ImageView, color: Game.Color, foregroundId: Int): Boolean {
-        val piece = Piece.getPieceFromSquare(boardView, otherTile)
-        if (piece != null) {
-            if (color != piece.color) {
-                otherTile.foreground = boardView.resources.getDrawable(foregroundId, boardView.context.theme)
-            }
+    internal fun isLegalSquare(show: Boolean, coordinate: Coordinate?, promotePiece: Char? = null): Boolean {
+        if(coordinate == null) return false
+        val foregroundId = if (show) R.drawable.ic_square_suggestion else R.drawable.ic_blank_tile
+        val square = Game.board[coordinate]!!
+        if(square.coordinate == this.coordinate) return true // Same square, do nothing
+        var move = "${this.coordinate.name}${coordinate.name}"
+        if(promotePiece != null) move += promotePiece
+        if(Uci.isLegal(move)){
+            square.foregroundResource = foregroundId
             return true
         }
         return false
     }
 
     fun showDiagonals(show: Boolean) {
-        val coord = square!!.contentDescription.toString()
+        blockingPiece = false
         // Find possible moves northeast
-        var col = coord[0]
-        var row = coord[1].asInt
-        while (col <= 'h' || row <= 8){
-            if (!isLegalSquare(show, "$col$row")) break
-            col++
-            row++
+        var col = coordinate.name[0]
+        var row = coordinate.name[1].asInt
+        while (col <= 'h' && row <= 8){
+            if (!isLegalSquare(show, Coordinate.fromString("${col++}${row++}"))) break
         }
+        blockingPiece = false
         // Find possible moves southwest
-        col = coord[0]
-        row = coord[1].asInt
-        while (col >= 'a' || row >= 1){
-            if (!isLegalSquare(show, "$col$row")) break
-            col--
-            row--
+        col = coordinate.name[0]
+        row = coordinate.name[1].asInt
+        while (col >= 'a' && row >= 1){
+            if (!isLegalSquare(show, Coordinate.fromString("${col--}${row--}"))) break
         }
-        // Find possible moves nortwest
-        col = coord[0]
-        row = coord[1].asInt
-        while (col >= 'a' || row <= 8){
-            if (!isLegalSquare(show, "$col$row")) break
-            col--
-            row++
+
+        blockingPiece = false
+        // Find possible moves northwest
+        col = coordinate.name[0]
+        row = coordinate.name[1].asInt
+        while (col >= 'a' && row <= 8){
+            if (!isLegalSquare(show, Coordinate.fromString("${col--}${row++}"))) break
         }
+
+        blockingPiece = false
         // Find possible moves southeast
-        col = coord[0]
-        row = coord[1].asInt
-        while (col >= 'h' || row >= 1){
-            if (!isLegalSquare(show, "$col$row")) break
-            col++
-            row--
+        col = coordinate.name[0]
+        row = coordinate.name[1].asInt
+        while (col <= 'h' && row >= 1){
+            if (!isLegalSquare(show, Coordinate.fromString("${col++}${row--}"))) break
         }
     }
 
     fun showVerticalAndHorizontal(show: Boolean){
-        val coord = square!!.contentDescription.toString()
+        blockingPiece = false
+
         // Find possible moves up
-        for (c in coord[1].asInt..8) {
-            if (!isLegalSquare(show, "${coord[0].toLowerCase()}$c")) break
+        for (c in coordinate.name[1].asInt..8) {
+            if (!isLegalSquare(show, Coordinate.fromString("${coordinate.name[0]}$c"))) break
         }
+
+        blockingPiece = false
         // Find possible moves down
-        for (c in coord[1].asInt downTo 1) {
-            if (!isLegalSquare(show, "${coord[0].toLowerCase()}$c")) break
+        for (c in coordinate.name[1].asInt downTo 1) {
+            if (!isLegalSquare(show, Coordinate.fromString("${coordinate.name[0]}$c"))) break
         }
+
+        blockingPiece = false
         // Find possible moves left
-        for (c in coord[0].toLowerCase()..'h') {
-            if (!isLegalSquare(show, "$c${coord[1]}")) break
+        for (c in coordinate.name[0]..'h') {
+            if (!isLegalSquare(show, Coordinate.fromString("$c${coordinate.name[1]}"))) break
         }
+
+        blockingPiece = false
         // Find possible moves right
-        for (c in coord[0].toLowerCase() downTo 'a') {
-            if (!isLegalSquare(show, "$c${coord[1]}")) break
+        for (c in coordinate.name[0] downTo 'a') {
+            if (!isLegalSquare(show, Coordinate.fromString("$c${coordinate.name[1]}"))) break
+        }
+    }
+
+    fun promote(promotePiece: Char?): Piece {
+        return when(promotePiece){
+            'Q' -> {
+                val resource = if(color == Color.WHITE) R.drawable.ic_white_queen else R.drawable.ic_white_queen
+                Queen(resource, color, tag, coordinate)
+            }
+            'R' -> {
+                val resource = if(color == Color.WHITE) R.drawable.ic_white_rook else R.drawable.ic_black_rook
+                Rook(resource, color, tag, coordinate)
+            }
+            'N' -> {
+                val resource = if(color == Color.WHITE) R.drawable.ic_white_knight else R.drawable.ic_black_knight
+                Knight(resource, color, tag, coordinate)
+            }
+            'B' -> {
+                val resource = if(color == Color.WHITE) R.drawable.ic_white_bishop else R.drawable.ic_black_bishop
+                Bishop(resource, color, tag, coordinate)
+            }
+            else -> this
         }
     }
 
     abstract fun showPossibleMoves(show: Boolean)
-
-    companion object {
-        fun getPieceFromSquare(boardView: View, square: ImageView): Piece? {
-            val isWhite = square.tag.toString()[0].isUpperCase()
-            return getPiece(
-                square.tag.toString()[0],
-                if (isWhite) Game.Color.WHITE else Game.Color.BLACK,
-                boardView,
-                square
-            )
-        }
-
-        fun getPiece(
-            tag: Char,
-            color: Game.Color,
-            boardView: View,
-            square: ImageView? = null
-        ): Piece? {
-            return when (tag.toLowerCase()) {
-                'p' -> Pawn(boardView, ResourcePiece.PAWN.resource(color), color, tag, square)
-                'r' -> Rook(boardView, ResourcePiece.ROOK.resource(color), color, tag, square)
-                'n' -> Knight(boardView, ResourcePiece.KNIGHT.resource(color), color, tag, square)
-                'b' -> Bishop(boardView, ResourcePiece.BISHOP.resource(color), color, tag, square)
-                'q' -> Queen(boardView, ResourcePiece.QUEEN.resource(color), color, tag, square)
-                'k' -> King(boardView, ResourcePiece.KING.resource(color), color, tag, square)
-                else -> null
-            }
-        }
-    }
-}
-
-enum class ResourcePiece(private val whiteResource: Int, private val blackResource: Int, private val tag: Char) {
-    ROOK(R.drawable.ic_white_rook, R.drawable.ic_black_rook, 'R'),
-    BISHOP(R.drawable.ic_white_bishop, R.drawable.ic_black_bishop, 'B'),
-    KNIGHT(R.drawable.ic_white_knight, R.drawable.ic_black_knight, 'N'),
-    KING(R.drawable.ic_white_king, R.drawable.ic_black_king, 'K'),
-    QUEEN(R.drawable.ic_white_queen, R.drawable.ic_black_queen, 'Q'),
-    PAWN(R.drawable.ic_white_pawn, R.drawable.ic_black_pawn, 'P');
-
-    fun resource(color: Game.Color): Int {
-        return if (color == Game.Color.WHITE) whiteResource else blackResource
-    }
-
-    fun tag(color: Game.Color): Char {
-        return if (color == Game.Color.WHITE) tag.toUpperCase() else tag.toLowerCase()
-    }
 }

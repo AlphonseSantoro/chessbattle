@@ -10,4 +10,9 @@
         android:name="no.kristiania.alphonsesantoro.chessbattle.fragments.BoardFragment"
         android:label="fragment_board"
         tools:layout="@layout/fragment_board" />
+    <fragment
+        android:id="@+id/mainMenuFragment"
+        android:name="no.kristiania.alphonsesantoro.chessbattle.fragments.MainMenuFragment"
+        android:label="fragment_main_menu"
+        tools:layout="@layout/fragment_main_menu" />
 </navigation>

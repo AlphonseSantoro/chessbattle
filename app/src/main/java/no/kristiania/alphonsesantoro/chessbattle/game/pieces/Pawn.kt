@@ -1,25 +1,41 @@
 package no.kristiania.alphonsesantoro.chessbattle.game.pieces
 
-import android.view.View
-import android.widget.ImageView
-import no.kristiania.alphonsesantoro.chessbattle.game.Game
+import no.kristiania.alphonsesantoro.chessbattle.game.Color
+import no.kristiania.alphonsesantoro.chessbattle.game.Coordinate
 import no.kristiania.alphonsesantoro.chessbattle.util.asInt
 
-class Pawn(boardView: View, resource: Int, color: Game.Color, tag: Char, square: ImageView? = null) :
-    Piece(boardView, resource, color, tag, square) {
+class Pawn(resource: Int, color: Color, tag: Char, coordinate: Coordinate) :
+    Piece(resource, color, tag, coordinate) {
 
     override fun showPossibleMoves(show: Boolean) {
-        if (square!!.contentDescription[1].asInt == promoteRank) return
-        val coord = square!!.contentDescription.toString()
-        isLegalSquare(show, "${coord[0]}${coord[1].asInt + 1}")
-        if (isStartPos()) isLegalSquare(show, "${coord[0]}${coord[1].asInt + 2}")
-        isLegalSquare(show, "${coord[0] + 1}${coord[1].asInt + 1}")
-        isLegalSquare(show, "${coord[0] - 1}${coord[1].asInt + 1}")
+        val moveDir = if (color == Color.WHITE) 1 else -1
+        if (isStartPos()) isLegalSquare(
+            show,
+            Coordinate.fromString("${coordinate.name[0]}${coordinate.name[1].asInt + (2 * moveDir)}")
+        )
+        isLegalSquare(
+            show,
+            Coordinate.fromString("${coordinate.name[0]}${coordinate.name[1].asInt + (1 * moveDir)}")
+        )
+        isLegalSquare(
+            show,
+            Coordinate.fromString("${coordinate.name[0] + 1}${coordinate.name[1].asInt + (1 * moveDir)}")
+        )
+        isLegalSquare(
+            show,
+            Coordinate.fromString("${coordinate.name[0] - 1}${coordinate.name[1].asInt + (1 * moveDir)}")
+        )
+
+        // check promotion
+        val nextRank = coordinate.name[1] + 1 * moveDir
+        isLegalSquare(show, Coordinate.fromString("${coordinate.name[0] - 1}$nextRank"), 'Q')
+        isLegalSquare(show, Coordinate.fromString("${coordinate.name[0]}$nextRank"), 'Q')
+        isLegalSquare(show, Coordinate.fromString("${coordinate.name[0] + 1}$nextRank"), 'Q')
     }
 
     private fun isStartPos(): Boolean {
-        if (square!!.contentDescription[1].asInt == 2 && color == Game.Color.WHITE ||
-            square!!.contentDescription[1].asInt == 7 && color == Game.Color.BLACK
+        if (coordinate.name[1].asInt == 2 && color == Color.WHITE ||
+            coordinate.name[1].asInt == 7 && color == Color.BLACK
         ) {
             return true
         }

@@ -18,64 +18,72 @@
                 android:id="@+id/a8"
                 android:layout_height="match_parent"
                 android:layout_weight="0.125"
-                android:src="@drawable/ic_black_rook"
-                android:tag="r"
-                android:contentDescription="@string/a8"/>
+                android:src="@drawable/ic_blank_tile"
+                android:tag=" "
+                android:background="@color/colorBoardWhite"
+                android:contentDescription="@string/a8" />
 
             <ImageView
                 android:id="@+id/b8"
                 android:layout_height="match_parent"
                 android:layout_weight="0.125"
-                android:src="@drawable/ic_black_knight"
-                android:tag="n"
+                android:src="@drawable/ic_blank_tile"
+                android:tag=" "
+                android:background="@color/colorBoardGreen"
                 android:contentDescription="@string/b8"/>
 
             <ImageView
                 android:id="@+id/c8"
                 android:layout_height="match_parent"
                 android:layout_weight="0.125"
-                android:src="@drawable/ic_black_bishop"
-                android:tag="b"
+                android:src="@drawable/ic_blank_tile"
+                android:tag=" "
+                android:background="@color/colorBoardWhite"
                 android:contentDescription="@string/c8"/>
 
             <ImageView
                 android:id="@+id/d8"
                 android:layout_height="match_parent"
                 android:layout_weight="0.125"
-                android:src="@drawable/ic_black_king"
-                android:tag="k"
+                android:src="@drawable/ic_blank_tile"
+                android:tag=" "
+                android:background="@color/colorBoardGreen"
                 android:contentDescription="@string/d8"/>
 
             <ImageView
                 android:id="@+id/e8"
                 android:layout_height="match_parent"
                 android:layout_weight="0.125"
-                android:src="@drawable/ic_black_queen"
-                android:tag="q"
+                android:src="@drawable/ic_blank_tile"
+                android:tag=" "
+                android:background="@color/colorBoardWhite"
                 android:contentDescription="@string/e8"/>
 
             <ImageView
                 android:id="@+id/f8"
                 android:layout_height="match_parent"
                 android:layout_weight="0.125"
-                android:src="@drawable/ic_black_bishop"
-                android:tag="b"
+                android:src="@drawable/ic_blank_tile"
+                android:tag=" "
+                android:background="@color/colorBoardGreen"
                 android:contentDescription="@string/f8"/>
 
             <ImageView
                 android:id="@+id/g8"
                 android:layout_height="match_parent"
                 android:layout_weight="0.125"
-                android:src="@drawable/ic_black_knight"
-                android:tag="n"
+                android:src="@drawable/ic_blank_tile"
+                android:tag=" "
+                android:background="@color/colorBoardWhite"
                 android:contentDescription="@string/g8"/>
 
             <ImageView
                 android:id="@+id/h8"
                 android:layout_height="match_parent"
                 android:layout_weight="0.125"
-                android:src="@drawable/ic_black_rook"
-                android:tag="r"
+                android:src="@drawable/ic_blank_tile"
+                android:tag=" "
+                android:background="@color/colorBoardGreen"
                 android:contentDescription="@string/h8"/>
         </TableRow>
 
@@ -85,64 +93,72 @@
                 android:id="@+id/a7"
                 android:layout_height="match_parent"
                 android:layout_weight="0.125"
-                android:src="@drawable/ic_black_pawn"
-                android:tag="p"
+                android:src="@drawable/ic_blank_tile"
+                android:tag=" "
+                android:background="@color/colorBoardGreen"
                 android:contentDescription="@string/a7"/>
 
             <ImageView
                 android:id="@+id/b7"
                 android:layout_height="match_parent"
                 android:layout_weight="0.125"
-                android:src="@drawable/ic_black_pawn"
-                android:tag="p"
+                android:src="@drawable/ic_blank_tile"
+                android:tag=" "
+                android:background="@color/colorBoardWhite"
                 android:contentDescription="@string/b7"/>
 
             <ImageView
                 android:id="@+id/c7"
                 android:layout_height="match_parent"
                 android:layout_weight="0.125"
-                android:src="@drawable/ic_black_pawn"
-                android:tag="p"
+                android:src="@drawable/ic_blank_tile"
+                android:tag=" "
+                android:background="@color/colorBoardGreen"
                 android:contentDescription="@string/c7"/>
 
             <ImageView
                 android:id="@+id/d7"
                 android:layout_height="match_parent"
                 android:layout_weight="0.125"
-                android:src="@drawable/ic_black_pawn"
-                android:tag="p"
+                android:src="@drawable/ic_blank_tile"
+                android:tag=" "
+                android:background="@color/colorBoardWhite"
                 android:contentDescription="@string/d7"/>
 
             <ImageView
                 android:id="@+id/e7"
                 android:layout_height="match_parent"
                 android:layout_weight="0.125"
-                android:src="@drawable/ic_black_pawn"
-                android:tag="p"
+                android:src="@drawable/ic_blank_tile"
+                android:tag=" "
+                android:background="@color/colorBoardGreen"
                 android:contentDescription="@string/e7"/>
 
             <ImageView
                 android:id="@+id/f7"
                 android:layout_height="match_parent"
                 android:layout_weight="0.125"
-                android:src="@drawable/ic_black_pawn"
-                android:tag="p"
+                android:src="@drawable/ic_blank_tile"
+                android:tag=" "
+                android:background="@color/colorBoardWhite"
                 android:contentDescription="@string/f7"/>
 
             <ImageView
                 android:id="@+id/g7"
                 android:layout_height="match_parent"
                 android:layout_weight="0.125"
-                android:src="@drawable/ic_black_pawn"
-                android:tag="p"
+                android:src="@drawable/ic_blank_tile"
+                android:tag=" "
+                android:background="@color/colorBoardGreen"
                 android:contentDescription="@string/g7"/>
 
             <ImageView
                 android:id="@+id/h7"
                 android:layout_height="match_parent"
                 android:layout_weight="0.125"
-                android:src="@drawable/ic_black_pawn"
-                android:tag="p"
+                android:src="@drawable/ic_blank_tile"
+                android:tag=" "
+                android:background="@color/colorBoardWhite"
                 android:contentDescription="@string/h7"/>
         </TableRow>
 
@@ -154,6 +170,7 @@
                 android:layout_weight="0.125"
                 android:src="@drawable/ic_blank_tile"
                 android:tag=" "
+                android:background="@color/colorBoardWhite"
                 android:contentDescription="@string/a6"/>
 
             <ImageView
@@ -162,6 +179,7 @@
                 android:layout_weight="0.125"
                 android:src="@drawable/ic_blank_tile"
                 android:tag=" "
+                android:background="@color/colorBoardGreen"
                 android:contentDescription="@string/b6"/>
 
             <ImageView
@@ -170,6 +188,7 @@
                 android:layout_weight="0.125"
                 android:src="@drawable/ic_blank_tile"
                 android:tag=" "
+                android:background="@color/colorBoardWhite"
                 android:contentDescription="@string/c6"/>
 
             <ImageView
@@ -178,6 +197,7 @@
                 android:layout_weight="0.125"
                 android:src="@drawable/ic_blank_tile"
                 android:tag=" "
+                android:background="@color/colorBoardGreen"
                 android:contentDescription="@string/d6"/>
 
             <ImageView
@@ -186,6 +206,7 @@
                 android:layout_weight="0.125"
                 android:src="@drawable/ic_blank_tile"
                 android:tag=" "
+                android:background="@color/colorBoardWhite"
                 android:contentDescription="@string/e6"/>
 
             <ImageView
@@ -194,6 +215,7 @@
                 android:layout_weight="0.125"
                 android:src="@drawable/ic_blank_tile"
                 android:tag=" "
+                android:background="@color/colorBoardGreen"
                 android:contentDescription="@string/f6"/>
 
             <ImageView
@@ -202,6 +224,7 @@
                 android:layout_weight="0.125"
                 android:src="@drawable/ic_blank_tile"
                 android:tag=" "
+                android:background="@color/colorBoardWhite"
                 android:contentDescription="@string/g6"/>
 
             <ImageView
@@ -210,6 +233,7 @@
                 android:layout_weight="0.125"
                 android:src="@drawable/ic_blank_tile"
                 android:tag=" "
+                android:background="@color/colorBoardGreen"
                 android:contentDescription="@string/h6"/>
         </TableRow>
 
@@ -221,6 +245,7 @@
                 android:layout_weight="0.125"
                 android:src="@drawable/ic_blank_tile"
                 android:tag=" "
+                android:background="@color/colorBoardGreen"
                 android:contentDescription="@string/a5"/>
 
             <ImageView
@@ -229,6 +254,7 @@
                 android:layout_weight="0.125"
                 android:src="@drawable/ic_blank_tile"
                 android:tag=" "
+                android:background="@color/colorBoardWhite"
                 android:contentDescription="@string/b5"/>
 
             <ImageView
@@ -237,6 +263,7 @@
                 android:layout_weight="0.125"
                 android:src="@drawable/ic_blank_tile"
                 android:tag=" "
+                android:background="@color/colorBoardGreen"
                 android:contentDescription="@string/c5"/>
 
             <ImageView
@@ -245,6 +272,7 @@
                 android:layout_weight="0.125"
                 android:src="@drawable/ic_blank_tile"
                 android:tag=" "
+                android:background="@color/colorBoardWhite"
                 android:contentDescription="@string/d5"/>
 
             <ImageView
@@ -253,6 +281,7 @@
                 android:layout_weight="0.125"
                 android:src="@drawable/ic_blank_tile"
                 android:tag=" "
+                android:background="@color/colorBoardGreen"
                 android:contentDescription="@string/e5"/>
 
             <ImageView
@@ -261,6 +290,7 @@
                 android:layout_weight="0.125"
                 android:src="@drawable/ic_blank_tile"
                 android:tag=" "
+                android:background="@color/colorBoardWhite"
                 android:contentDescription="@string/f5"/>
 
             <ImageView
@@ -269,6 +299,7 @@
                 android:layout_weight="0.125"
                 android:src="@drawable/ic_blank_tile"
                 android:tag=" "
+                android:background="@color/colorBoardGreen"
                 android:contentDescription="@string/g5"/>
 
             <ImageView
@@ -277,6 +308,7 @@
                 android:layout_weight="0.125"
                 android:src="@drawable/ic_blank_tile"
                 android:tag=" "
+                android:background="@color/colorBoardWhite"
                 android:contentDescription="@string/h5"/>
         </TableRow>
 
@@ -288,6 +320,7 @@
                 android:layout_weight="0.125"
                 android:src="@drawable/ic_blank_tile"
                 android:tag=" "
+                android:background="@color/colorBoardWhite"
                 android:contentDescription="@string/a4"/>
 
             <ImageView
@@ -296,6 +329,7 @@
                 android:layout_weight="0.125"
                 android:src="@drawable/ic_blank_tile"
                 android:tag=" "
+                android:background="@color/colorBoardGreen"
                 android:contentDescription="@string/b4"/>
 
             <ImageView
@@ -304,6 +338,7 @@
                 android:layout_weight="0.125"
                 android:src="@drawable/ic_blank_tile"
                 android:tag=" "
+                android:background="@color/colorBoardWhite"
                 android:contentDescription="@string/c4"/>
 
             <ImageView
@@ -312,6 +347,7 @@
                 android:layout_weight="0.125"
                 android:src="@drawable/ic_blank_tile"
                 android:tag=" "
+                android:background="@color/colorBoardGreen"
                 android:contentDescription="@string/d4"/>
 
             <ImageView
@@ -320,6 +356,7 @@
                 android:layout_weight="0.125"
                 android:src="@drawable/ic_blank_tile"
                 android:tag=" "
+                android:background="@color/colorBoardWhite"
                 android:contentDescription="@string/e4"/>
 
             <ImageView
@@ -328,6 +365,7 @@
                 android:layout_weight="0.125"
                 android:src="@drawable/ic_blank_tile"
                 android:tag=" "
+                android:background="@color/colorBoardGreen"
                 android:contentDescription="@string/f4"/>
 
             <ImageView
@@ -336,6 +374,7 @@
                 android:layout_weight="0.125"
                 android:src="@drawable/ic_blank_tile"
                 android:tag=" "
+                android:background="@color/colorBoardWhite"
                 android:contentDescription="@string/g4"/>
 
             <ImageView
@@ -344,6 +383,7 @@
                 android:layout_weight="0.125"
                 android:src="@drawable/ic_blank_tile"
                 android:tag=" "
+                android:background="@color/colorBoardGreen"
                 android:contentDescription="@string/h4"/>
         </TableRow>
         <TableRow android:layout_weight="0.125">
@@ -354,6 +394,7 @@
                 android:layout_weight="0.125"
                 android:src="@drawable/ic_blank_tile"
                 android:tag=" "
+                android:background="@color/colorBoardGreen"
                 android:contentDescription="@string/a3"/>
 
             <ImageView
@@ -362,6 +403,7 @@
                 android:layout_weight="0.125"
                 android:src="@drawable/ic_blank_tile"
                 android:tag=" "
+                android:background="@color/colorBoardWhite"
                 android:contentDescription="@string/b3"/>
 
             <ImageView
@@ -370,6 +412,7 @@
                 android:layout_weight="0.125"
                 android:src="@drawable/ic_blank_tile"
                 android:tag=" "
+                android:background="@color/colorBoardGreen"
                 android:contentDescription="@string/c3"/>
 
             <ImageView
@@ -378,6 +421,7 @@
                 android:layout_weight="0.125"
                 android:src="@drawable/ic_blank_tile"
                 android:tag=" "
+                android:background="@color/colorBoardWhite"
                 android:contentDescription="@string/d3"/>
 
             <ImageView
@@ -386,6 +430,7 @@
                 android:layout_weight="0.125"
                 android:src="@drawable/ic_blank_tile"
                 android:tag=" "
+                android:background="@color/colorBoardGreen"
                 android:contentDescription="@string/e3"/>
 
             <ImageView
@@ -394,6 +439,7 @@
                 android:layout_weight="0.125"
                 android:src="@drawable/ic_blank_tile"
                 android:tag=" "
+                android:background="@color/colorBoardWhite"
                 android:contentDescription="@string/f3"/>
 
             <ImageView
@@ -402,6 +448,7 @@
                 android:layout_weight="0.125"
                 android:src="@drawable/ic_blank_tile"
                 android:tag=" "
+                android:background="@color/colorBoardGreen"
                 android:contentDescription="@string/g3"/>
 
             <ImageView
@@ -410,6 +457,7 @@
                 android:layout_weight="0.125"
                 android:src="@drawable/ic_blank_tile"
                 android:tag=" "
+                android:background="@color/colorBoardWhite"
                 android:contentDescription="@string/h3"/>
         </TableRow>
         <TableRow android:layout_weight="0.125">
@@ -418,64 +466,72 @@
                 android:id="@+id/a2"
                 android:layout_height="match_parent"
                 android:layout_weight="0.125"
-                android:src="@drawable/ic_white_pawn"
-                android:tag="P"
+                android:src="@drawable/ic_blank_tile"
+                android:tag=" "
+                android:background="@color/colorBoardWhite"
                 android:contentDescription="@string/a2"/>
 
             <ImageView
                 android:id="@+id/b2"
                 android:layout_height="match_parent"
                 android:layout_weight="0.125"
-                android:src="@drawable/ic_white_pawn"
-                android:tag="P"
+                android:src="@drawable/ic_blank_tile"
+                android:tag=" "
+                android:background="@color/colorBoardGreen"
                 android:contentDescription="@string/b2"/>
 
             <ImageView
                 android:id="@+id/c2"
                 android:layout_height="match_parent"
                 android:layout_weight="0.125"
-                android:src="@drawable/ic_white_pawn"
-                android:tag="P"
+                android:src="@drawable/ic_blank_tile"
+                android:tag=" "
+                android:background="@color/colorBoardWhite"
                 android:contentDescription="@string/c2"/>
 
             <ImageView
                 android:id="@+id/d2"
                 android:layout_height="match_parent"
                 android:layout_weight="0.125"
-                android:src="@drawable/ic_white_pawn"
-                android:tag="P"
+                android:src="@drawable/ic_blank_tile"
+                android:tag=" "
+                android:background="@color/colorBoardGreen"
                 android:contentDescription="@string/d2"/>
 
             <ImageView
                 android:id="@+id/e2"
                 android:layout_height="match_parent"
                 android:layout_weight="0.125"
-                android:src="@drawable/ic_white_pawn"
-                android:tag="P"
+                android:src="@drawable/ic_blank_tile"
+                android:tag=" "
+                android:background="@color/colorBoardWhite"
                 android:contentDescription="@string/e2"/>
 
             <ImageView
                 android:id="@+id/f2"
                 android:layout_height="match_parent"
                 android:layout_weight="0.125"
-                android:src="@drawable/ic_white_pawn"
-                android:tag="P"
+                android:src="@drawable/ic_blank_tile"
+                android:tag=" "
+                android:background="@color/colorBoardGreen"
                 android:contentDescription="@string/f2"/>
 
             <ImageView
                 android:id="@+id/g2"
                 android:layout_height="match_parent"
                 android:layout_weight="0.125"
-                android:src="@drawable/ic_white_pawn"
-                android:tag="P"
+                android:src="@drawable/ic_blank_tile"
+                android:tag=" "
+                android:background="@color/colorBoardWhite"
                 android:contentDescription="@string/g2"/>
 
             <ImageView
                 android:id="@+id/h2"
                 android:layout_height="match_parent"
                 android:layout_weight="0.125"
-                android:src="@drawable/ic_white_pawn"
-                android:tag="P"
+                android:src="@drawable/ic_blank_tile"
+                android:tag=" "
+                android:background="@color/colorBoardGreen"
                 android:contentDescription="@string/h2"/>
         </TableRow>
         <TableRow android:layout_weight="0.125">
@@ -484,64 +540,72 @@
                 android:id="@+id/a1"
                 android:layout_height="match_parent"
                 android:layout_weight="0.125"
-                android:src="@drawable/ic_white_rook"
-                android:tag="R"
+                android:src="@drawable/ic_blank_tile"
+                android:tag=" "
+                android:background="@color/colorBoardGreen"
                 android:contentDescription="@string/a1"/>
 
             <ImageView
                 android:id="@+id/b1"
                 android:layout_height="match_parent"
                 android:layout_weight="0.125"
-                android:src="@drawable/ic_white_knight"
-                android:tag="N"
+                android:src="@drawable/ic_blank_tile"
+                android:tag=" "
+                android:background="@color/colorBoardWhite"
                 android:contentDescription="@string/b1"/>
 
             <ImageView
                 android:id="@+id/c1"
                 android:layout_height="match_parent"
                 android:layout_weight="0.125"
-                android:src="@drawable/ic_white_bishop"
-                android:tag="B"
+                android:src="@drawable/ic_blank_tile"
+                android:tag=" "
+                android:background="@color/colorBoardGreen"
                 android:contentDescription="@string/c1"/>
 
             <ImageView
                 android:id="@+id/d1"
                 android:layout_height="match_parent"
                 android:layout_weight="0.125"
-                android:src="@drawable/ic_white_queen"
-                android:tag="Q"
+                android:src="@drawable/ic_blank_tile"
+                android:tag=" "
+                android:background="@color/colorBoardWhite"
                 android:contentDescription="@string/d1"/>
 
             <ImageView
                 android:id="@+id/e1"
                 android:layout_height="match_parent"
                 android:layout_weight="0.125"
-                android:src="@drawable/ic_white_king"
-                android:tag="K"
+                android:src="@drawable/ic_blank_tile"
+                android:tag=" "
+                android:background="@color/colorBoardGreen"
                 android:contentDescription="@string/e1"/>
 
             <ImageView
                 android:id="@+id/f1"
                 android:layout_height="match_parent"
                 android:layout_weight="0.125"
-                android:src="@drawable/ic_white_bishop"
-                android:tag="B"
+                android:src="@drawable/ic_blank_tile"
+                android:tag=" "
+                android:background="@color/colorBoardWhite"
                 android:contentDescription="@string/f1"/>
 
             <ImageView
                 android:id="@+id/g1"
                 android:layout_height="match_parent"
                 android:layout_weight="0.125"
-                android:src="@drawable/ic_white_knight"
-                android:tag="N"
+                android:src="@drawable/ic_blank_tile"
+                android:tag=" "
+                android:background="@color/colorBoardGreen"
                 android:contentDescription="@string/g1"/>
 
             <ImageView
                 android:id="@+id/h1"
                 android:layout_height="match_parent"
                 android:layout_weight="0.125"
-                android:src="@drawable/ic_white_rook"
-                android:tag="R"
+                android:src="@drawable/ic_blank_tile"
+                android:tag=" "
+                android:background="@color/colorBoardWhite"
                 android:contentDescription="@string/h1"/>
         </TableRow>
     </TableLayout>

@@ -1,25 +1,23 @@
 package no.kristiania.alphonsesantoro.chessbattle.game.pieces
 
-import android.view.View
-import android.widget.ImageView
-import no.kristiania.alphonsesantoro.chessbattle.game.Game
+import no.kristiania.alphonsesantoro.chessbattle.game.Color
+import no.kristiania.alphonsesantoro.chessbattle.game.Coordinate
 
-class Knight(boardView: View, resource: Int, color: Game.Color, tag: Char, square: ImageView? = null) :
-    Piece(boardView, resource, color, tag, square) {
+class Knight(resource: Int, color: Color, tag: Char, coordinate: Coordinate) :
+    Piece(resource, color, tag, coordinate) {
     override fun showPossibleMoves(show: Boolean) {
-        val coord = square!!.contentDescription.toString()
         val ids = arrayOf(
-            "${coord[0] + 1}${coord[1] + 2}",
-            "${coord[0] + 2}${coord[1] + 1}",
-            "${coord[0] + 2}${coord[1] - 1}",
-            "${coord[0] + 1}${coord[1] - 1}",
-            "${coord[0] - 1}${coord[1] - 2}",
-            "${coord[0] - 2}${coord[1] - 1}",
-            "${coord[0] - 2}${coord[1] + 1}",
-            "${coord[0] - 1}${coord[1] + 2}"
+            "${coordinate.name[0] + 1}${coordinate.name[1] + 2}",
+            "${coordinate.name[0] + 2}${coordinate.name[1] + 1}",
+            "${coordinate.name[0] + 2}${coordinate.name[1] - 1}",
+            "${coordinate.name[0] + 1}${coordinate.name[1] - 2}",
+            "${coordinate.name[0] - 1}${coordinate.name[1] - 2}",
+            "${coordinate.name[0] - 2}${coordinate.name[1] - 1}",
+            "${coordinate.name[0] - 2}${coordinate.name[1] + 1}",
+            "${coordinate.name[0] - 1}${coordinate.name[1] + 2}"
         )
         for (id in ids) {
-            isLegalSquare(show, id)
+            isLegalSquare(show, Coordinate.fromString(id))
         }
     }
 }
