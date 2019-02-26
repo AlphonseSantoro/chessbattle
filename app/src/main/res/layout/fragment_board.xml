@@ -11,5 +11,9 @@
         android:layout_height="wrap_content"
         android:textSize="20sp"
         android:id="@+id/fenPosition" />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/roomId"/>
 </LinearLayout>
 

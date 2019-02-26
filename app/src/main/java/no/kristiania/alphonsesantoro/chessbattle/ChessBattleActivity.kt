@@ -1,5 +1,9 @@
 package no.kristiania.alphonsesantoro.chessbattle
 
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.location.Location
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
@@ -9,11 +13,12 @@ import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
+import com.firebase.ui.auth.IdpResponse
 import com.google.android.material.navigation.NavigationView
 
-class ChessBattleActivity : AppCompatActivity() {
 
-    lateinit var drawerLayout : DrawerLayout
+class ChessBattleActivity : AppCompatActivity() {
+    lateinit var drawerLayout: DrawerLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,13 +39,19 @@ class ChessBattleActivity : AppCompatActivity() {
         navigationView.setNavigationItemSelectedListener { menuItem ->
             menuItem.isChecked = true
             drawerLayout.closeDrawers()
-            when(menuItem.itemId) {
-                R.id.live_game -> findNavController(R.id.fragment).navigate(R.id.boardFragment,
-                    bundleOf("live" to true))
-                R.id.computer_game -> findNavController(R.id.fragment).navigate(R.id.boardFragment,
-                    bundleOf("stockfish" to true))
-                R.id.local_two_player -> findNavController(R.id.fragment).navigate(R.id.boardFragment,
-                    bundleOf("two_player" to true))
+            when (menuItem.itemId) {
+                R.id.live_game -> findNavController(R.id.fragment).navigate(
+                    R.id.findGameFragment,
+                    bundleOf("live" to true)
+                )
+                R.id.computer_game -> findNavController(R.id.fragment).navigate(
+                    R.id.boardFragment,
+                    bundleOf("stockfish" to true)
+                )
+                R.id.local_two_player -> findNavController(R.id.fragment).navigate(
+                    R.id.boardFragment,
+                    bundleOf("two_player" to true)
+                )
 
             }
             true
@@ -54,6 +65,13 @@ class ChessBattleActivity : AppCompatActivity() {
                 true
             }
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 2) {
+            findNavController(R.id.fragment).navigate(R.id.findGameFragment, bundleOf())
         }
     }
 }

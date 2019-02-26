@@ -1,6 +1,12 @@
 package no.kristiania.alphonsesantoro.chessbattle
 
+import android.widget.AdapterView
 import androidx.test.InstrumentationRegistry
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.ViewInteraction
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.typeText
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.runner.AndroidJUnit4
 
 import org.junit.Test
@@ -20,5 +26,12 @@ class ExampleInstrumentedTest {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getTargetContext()
         assertEquals("no.kristiania.alphonsesantoro.chessbattle", appContext.packageName)
+    }
+
+    @Test
+    fun moves_piece() {
+        onView(withId(R.id.d2)).perform(click())
+        onView(withId(R.id.d4)).perform(click())
+
     }
 }

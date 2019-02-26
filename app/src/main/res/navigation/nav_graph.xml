@@ -15,4 +15,9 @@
         android:name="no.kristiania.alphonsesantoro.chessbattle.fragments.MainMenuFragment"
         android:label="fragment_main_menu"
         tools:layout="@layout/fragment_main_menu" />
+    <fragment
+        android:id="@+id/findGameFragment"
+        android:name="no.kristiania.alphonsesantoro.chessbattle.fragments.FindGameFragment"
+        android:label="find_game_fragment"
+        tools:layout="@layout/find_game_fragment" />
 </navigation>

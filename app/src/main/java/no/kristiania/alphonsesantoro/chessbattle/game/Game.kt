@@ -20,26 +20,36 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
 import android.view.Gravity
 import android.view.ViewGroup
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.DocumentReference
+import com.google.gson.JsonParser
 import kotlinx.android.synthetic.main.white_promote_popup.view.*
+import java.lang.reflect.Type
+import java.util.HashMap
 
 
-class Game(
-    val activity: Activity,
-    val view: View,
+open class Game(
+    val activity: Activity?,
+    val view: View?,
     val live: Boolean = false,
     val twoPlayer: Boolean = false,
     val stockfish: Boolean = false,
-    val computerColor: Color = Color.BLACK
+    val computerColor: Color = Color.BLACK,
+    val liveColor: Color? = null,
+    val gameId: String? = null
 ) {
 
     companion object {
         var board = mutableMapOf<Coordinate, Square>()
     }
 
-    private var colorToMove : Color
+    private var colorToMove: Color
     private var selectedPiece: Piece? = null
     private var lastMovedPiece: Piece? = null
     private var uciListener: OutputListenerImpl
+    private var gameRef: DocumentReference? = null
+    private var moves: MutableMap<String, String> = mutableMapOf()
+    private var lastMoveNr: Int = 0
 
     init {
         newGame()
@@ -50,9 +60,39 @@ class Game(
         uciListener = OutputListenerImpl
         Uci.setOutputListener(uciListener)
         drawPosition(false)
+        if (live) {
+            gameRef = FirebaseFirestore.getInstance().document("games/$gameId")
+            view!!.roomId.text = gameId
+            Thread {
+                gameRef!!.addSnapshotListener { documentSnapshot, exception ->
+                    if (documentSnapshot!!.get("moves") != null && colorToMove != liveColor && Color.fromString(
+                            documentSnapshot.getString("lastMoveByColor")
+                        ) != liveColor
+                    ) {
+                        moves = documentSnapshot.get("moves") as MutableMap<String, String>
+                        if (moves.isNotEmpty()) {
+                            val lastMove = moves.entries.sortedByDescending { it.key.toInt() }.first()
+                            lastMoveNr = lastMove.key.toInt()
+                            val promotePiece = if (lastMove.value.length > 4) lastMove.value[4] else null
+                            val liveMove = Move(
+                                Coordinate.fromString(lastMove.value.substring(0, 2))!!,
+                                Coordinate.fromString(lastMove.value.substring(2, 4))!!,
+                                promotePiece
+                            )
+                            move(liveMove.fromCoordinate, liveMove.toCoordinate, liveMove.promotePiece, liveMove = true)
+                        }
+                    }
+                }
+            }.start()
+        }
     }
 
-    fun move(fromCoordinate: Coordinate, toCoordinate: Coordinate, promotePiece: Char? = null): Boolean {
+    fun move(
+        fromCoordinate: Coordinate,
+        toCoordinate: Coordinate,
+        promotePiece: Char? = null,
+        liveMove: Boolean = false
+    ): Boolean {
         var validMove = false
         val fenTokens = Uci.fen().split(" ")
         val enPassantPos = fenTokens[3]
@@ -63,7 +103,7 @@ class Game(
             showPromotePopup(fromCoordinate, toCoordinate)
             return true
         }
-        if (position("fen ${fen()} moves $move")) {
+        if (colorToMove == board[fromCoordinate]?.piece?.color && position("fen ${fen()} moves $move")) {
             castle(canCastle, fromCoordinate, toCoordinate)
             enPassant(enPassantPos, fromCoordinate, toCoordinate)
             board[fromCoordinate]!!.piece!!.showPossibleMoves(false)
@@ -72,8 +112,15 @@ class Game(
             lastMovedPiece = board[toCoordinate]!!.piece
             board[fromCoordinate]!!.piece = null
             colorToMove = Color.fromFen()
-            view.fenPosition.text = fen()
+            view?.fenPosition?.text = fen()
             if (stockfish && computerColor == colorToMove) computerMove()
+            if (live && !liveMove) {
+                Thread {
+                    println(moves)
+                    moves[(++lastMoveNr).toString()] = move
+                    gameRef!!.update(mapOf("lastMoveByColor" to liveColor, "moves" to moves))
+                }.start()
+            }
             validMove = true
         }
         selectedPiece = null
@@ -86,8 +133,8 @@ class Game(
     }
 
     private fun showPromotePopup(fromCoordinate: Coordinate, toCoordinate: Coordinate) {
-        val inflater = activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val coord = view.findViewById<ImageView>(
+        val inflater = activity!!.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val coord = view!!.findViewById<ImageView>(
             view.resources.getIdentifier(
                 toCoordinate.name,
                 "id",
@@ -128,7 +175,8 @@ class Game(
     private fun castle(canCastle: String, fromCoordinate: Coordinate, toCoordinate: Coordinate) {
         val movePos = "${fromCoordinate.name}${toCoordinate.name}"
         if (colorToMove == Color.WHITE && !canCastle.contains(Regex("[QK]")) ||
-            colorToMove == Color.BLACK && !canCastle.contains(Regex("[kq]")))
+            colorToMove == Color.BLACK && !canCastle.contains(Regex("[kq]"))
+        )
             return
         val castleMoves = arrayOf("e1c1", "e1g1", "e8c8", "e8g8")
         if (board[fromCoordinate]!!.piece is King && castleMoves.contains(movePos)) {
@@ -159,10 +207,11 @@ class Game(
 
     fun onSquareClick(square: ImageView) {
         val coord = Coordinate.valueOf(square.contentDescription.toString())
+        if (live && liveColor != colorToMove) return // TODO: enable premoving
         if (selectedPiece != null) {
             move(selectedPiece!!.coordinate, coord)
         } else {
-            if(colorToMove != board[coord]?.piece?.color) return
+            if (colorToMove != board[coord]?.piece?.color) return
             selectedPiece = board[coord]!!.piece
             if (selectedPiece != null) {
                 selectedPiece!!.showPossibleMoves(true)
@@ -183,7 +232,7 @@ class Game(
                 bestMove = bestMove.split(" ")[1]
                 val from = Coordinate.valueOf(bestMove.substring(0, 2))
                 val to = Coordinate.valueOf(bestMove.substring(2, 4))
-                activity.runOnUiThread { move(from, to) }
+                activity!!.runOnUiThread { move(from, to) }
             } catch (e: IllegalArgumentException) {
                 computerMove()
             }
@@ -191,30 +240,32 @@ class Game(
     }
 
     fun drawPosition(showForeground: Boolean = false) {
-        board.forEach { coordinate, square ->
-            val id = view.resources.getIdentifier(coordinate.name, "id", view.context.packageName)
-            val squareView = view.findViewById<ImageView>(id)
-            if (square.piece != null) {
-                squareView.setImageResource(square.piece!!.resource)
-            } else squareView.setImageResource(square.emptySquareRes)
-            val drawables = mutableListOf<Drawable>()
-            if (showForeground) {
-                if(selectedPiece == square.piece){
-                    drawables.add(view.resources.getDrawable(R.drawable.ic_selected_square, view.context.theme))
+        if (view != null) {
+            board.forEach { coordinate, square ->
+                val id = view.resources.getIdentifier(coordinate.name, "id", view.context.packageName)
+                val squareView = view.findViewById<ImageView>(id)
+                if (square.piece != null) {
+                    squareView.setImageResource(square.piece!!.resource)
+                } else squareView.setImageResource(square.emptySquareRes)
+                val drawables = mutableListOf<Drawable>()
+                if (showForeground) {
+                    if (selectedPiece == square.piece) {
+                        drawables.add(view.resources.getDrawable(R.drawable.ic_selected_square, view.context.theme))
+                    }
+                    drawables.add(view.resources.getDrawable(square.foregroundResource, view.context.theme))
+                    squareView.foreground = LayerDrawable(drawables.toTypedArray())
+                } else {
+                    squareView.foreground = view.resources.getDrawable(R.drawable.ic_blank_tile, view.context.theme)
+                    removeForeground()
                 }
-                drawables.add(view.resources.getDrawable(square.foregroundResource, view.context.theme))
-                squareView.foreground = LayerDrawable(drawables.toTypedArray())
-            } else {
-                squareView.foreground = view.resources.getDrawable(R.drawable.ic_blank_tile, view.context.theme)
-                removeForeground()
+                if (square.piece != null && square.piece == lastMovedPiece) {
+                    drawables.add(view.resources.getDrawable(R.drawable.ic_selected_square, view.context.theme))
+                    squareView.foreground = LayerDrawable(drawables.toTypedArray())
+                }
+                squareView.setOnClickListener { onSquareClick(squareView) }
             }
-            if(square.piece != null && square.piece == lastMovedPiece){
-                drawables.add(view.resources.getDrawable(R.drawable.ic_selected_square, view.context.theme))
-                squareView.foreground = LayerDrawable(drawables.toTypedArray())
-            }
-            squareView.setOnClickListener { onSquareClick(squareView) }
+            view.fenPosition.text = fen()
         }
-        view.fenPosition.text = fen()
     }
 
     fun removeForeground() {
