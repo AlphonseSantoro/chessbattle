@@ -90,7 +90,8 @@ class FindGameViewModel : ViewModel() {
                                         "playerTwo" to documentSnapshot["playerTwo"],
                                         "white" to white,
                                         "black" to black,
-                                        "game_id" to it.id
+                                        "game_id" to it.id,
+                                        "perspective" to if(white == currentUser.uid) Color.WHITE else Color.BLACK
                                     )
                                 )
                             }
@@ -117,8 +118,10 @@ class FindGameViewModel : ViewModel() {
                         "playerTwo" to documentSnapshot["playerTwo"],
                         "playerOne" to documentSnapshot["playerOne"],
                         "white" to documentSnapshot["white"],
+                        "other_username" to currentUser?.displayName,
                         "black" to documentSnapshot["black"],
-                        "game_id" to documentSnapshot["gameId"]
+                        "game_id" to documentSnapshot["gameId"],
+                        "perspective" to if(documentSnapshot["white"] == currentUser!!.uid) Color.WHITE else Color.BLACK
                     )
                 )
             }

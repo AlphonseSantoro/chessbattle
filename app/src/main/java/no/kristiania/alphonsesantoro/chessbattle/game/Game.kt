@@ -1,31 +1,28 @@
 package no.kristiania.alphonsesantoro.chessbattle.game
 
 import android.app.Activity
-import android.view.View
 import android.widget.ImageView
 import android.widget.PopupWindow
 import jstockfish.Uci
 import jstockfish.Uci.fen
 import jstockfish.Uci.position
-import kotlinx.android.synthetic.main.fragment_board.view.*
 import no.kristiania.alphonsesantoro.chessbattle.R
 import no.kristiania.alphonsesantoro.chessbattle.game.pieces.*
 import no.kristiania.alphonsesantoro.chessbattle.util.OutputListenerImpl
 import no.kristiania.alphonsesantoro.chessbattle.util.asInt
 import java.lang.IllegalArgumentException
-import android.view.LayoutInflater
 import android.content.Context
 import android.graphics.Point
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
-import android.view.Gravity
-import android.view.ViewGroup
+import android.view.*
+import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.DocumentReference
-import com.google.gson.JsonParser
 import kotlinx.android.synthetic.main.white_promote_popup.view.*
-import java.lang.reflect.Type
-import java.util.HashMap
 
 
 open class Game(
@@ -34,13 +31,16 @@ open class Game(
     val live: Boolean = false,
     val twoPlayer: Boolean = false,
     val stockfish: Boolean = false,
-    val computerColor: Color = Color.BLACK,
+    val perspective: Color,
+    val computerColor: Color = if (perspective == Color.WHITE) Color.BLACK else Color.WHITE,
     val liveColor: Color? = null,
-    val gameId: String? = null
+    val gameId: String? = null,
+    val otherUsername: String? = null
 ) {
 
     companion object {
         var board = mutableMapOf<Coordinate, Square>()
+        var isChecked = false
     }
 
     private var colorToMove: Color
@@ -60,30 +60,20 @@ open class Game(
         uciListener = OutputListenerImpl
         Uci.setOutputListener(uciListener)
         drawPosition(false)
-        if (live) {
-            gameRef = FirebaseFirestore.getInstance().document("games/$gameId")
-            view!!.roomId.text = gameId
-            Thread {
-                gameRef!!.addSnapshotListener { documentSnapshot, exception ->
-                    if (documentSnapshot!!.get("moves") != null && colorToMove != liveColor && Color.fromString(
-                            documentSnapshot.getString("lastMoveByColor")
-                        ) != liveColor
-                    ) {
-                        moves = documentSnapshot.get("moves") as MutableMap<String, String>
-                        if (moves.isNotEmpty()) {
-                            val lastMove = moves.entries.sortedByDescending { it.key.toInt() }.first()
-                            lastMoveNr = lastMove.key.toInt()
-                            val promotePiece = if (lastMove.value.length > 4) lastMove.value[4] else null
-                            val liveMove = Move(
-                                Coordinate.fromString(lastMove.value.substring(0, 2))!!,
-                                Coordinate.fromString(lastMove.value.substring(2, 4))!!,
-                                promotePiece
-                            )
-                            move(liveMove.fromCoordinate, liveMove.toCoordinate, liveMove.promotePiece, liveMove = true)
-                        }
-                    }
-                }
-            }.start()
+
+        if(stockfish && perspective != colorToMove) computerMove() // Stockfish is white, make a move
+        setupLiveGame()
+        setupNames()
+    }
+
+    private fun setupNames() {
+        if(live) {
+            view?.findViewById<TextView>(R.id.nameWhite)?.text = FirebaseAuth.getInstance().currentUser?.displayName
+            view?.findViewById<TextView>(R.id.nameBlack)?.text = otherUsername
+        }
+        if(stockfish || twoPlayer) {
+            view?.findViewById<LinearLayout>(R.id.whiteNameBlock)?.removeAllViews()
+            view?.findViewById<LinearLayout>(R.id.blackNameBlock)?.removeAllViews()
         }
     }
 
@@ -106,17 +96,15 @@ open class Game(
         if (colorToMove == board[fromCoordinate]?.piece?.color && position("fen ${fen()} moves $move")) {
             castle(canCastle, fromCoordinate, toCoordinate)
             enPassant(enPassantPos, fromCoordinate, toCoordinate)
-            board[fromCoordinate]!!.piece!!.showPossibleMoves(false)
+            board[fromCoordinate]!!.piece!!.showPossibleMoves(false, false)
             board[toCoordinate]!!.piece = board[fromCoordinate]!!.piece?.promote(promotePiece)
             board[toCoordinate]!!.piece!!.coordinate = toCoordinate
             lastMovedPiece = board[toCoordinate]!!.piece
             board[fromCoordinate]!!.piece = null
             colorToMove = Color.fromFen()
-            view?.fenPosition?.text = fen()
             if (stockfish && computerColor == colorToMove) computerMove()
             if (live && !liveMove) {
                 Thread {
-                    println(moves)
                     moves[(++lastMoveNr).toString()] = move
                     gameRef!!.update(mapOf("lastMoveByColor" to liveColor, "moves" to moves))
                 }.start()
@@ -125,7 +113,35 @@ open class Game(
         }
         selectedPiece = null
         drawPosition()
+        isGameOver()
         return validMove
+    }
+
+    private fun isGameOver() {
+        var legalMovesCounter = 0
+        isChecked = false
+        board.forEach { coordinate, square ->
+            if(square.piece != null){
+                square.piece!!.showPossibleMoves(false, false)
+                legalMovesCounter += square.piece!!.legalMovesCount
+                square.piece!!.showPossibleMoves(false, true)
+            }
+        }
+        if(legalMovesCounter == 0) {
+            showGameOver()
+        }
+    }
+
+    private fun showGameOver() {
+        val alert = AlertDialog.Builder(ContextThemeWrapper(activity, R.style.AppTheme))
+        alert.setTitle("Game Over")
+        val win = if(colorToMove == perspective && isChecked){
+            "You lost"
+        } else if(colorToMove != perspective && isChecked) {
+            "You win"
+        } else "Stale mate"
+        alert.setMessage(win)
+        alert.show()
     }
 
     private fun isPromotion(fromCoordinate: Coordinate, toCoordinate: Coordinate): Boolean {
@@ -143,7 +159,8 @@ open class Game(
         )
         val point = Point()
         activity.windowManager.defaultDisplay.getSize(point)
-        val contentView = inflater.inflate(R.layout.white_promote_popup, coord.parent as ViewGroup, false)
+        val layout = if (perspective == Color.WHITE) R.layout.white_promote_popup else R.layout.black_promote_popup
+        val contentView = inflater.inflate(layout, coord.parent as ViewGroup, false)
         val pw = PopupWindow(contentView, point.x / 8, point.x / 2, true)
         pw.showAsDropDown(coord, Gravity.CENTER, 0, 0)
         contentView.promote_queen.setOnClickListener {
@@ -214,8 +231,14 @@ open class Game(
             if (colorToMove != board[coord]?.piece?.color) return
             selectedPiece = board[coord]!!.piece
             if (selectedPiece != null) {
-                selectedPiece!!.showPossibleMoves(true)
-                drawPosition(true)
+                selectedPiece!!.showPossibleMoves(true, false)
+                if(selectedPiece!!.legalMovesCount == 0) {
+                    selectedPiece!!.showPossibleMoves(false, false)
+                    selectedPiece = null
+                    drawPosition(false)
+                } else {
+                    drawPosition(true)
+                }
             }
         }
     }
@@ -264,7 +287,6 @@ open class Game(
                 }
                 squareView.setOnClickListener { onSquareClick(squareView) }
             }
-            view.fenPosition.text = fen()
         }
     }
 
@@ -309,5 +331,32 @@ open class Game(
         board[Coordinate.f8]!!.piece = Bishop(ResourcePiece.B_BISHOP.resource, Color.BLACK, 'b', Coordinate.f8)
         board[Coordinate.g8]!!.piece = Knight(ResourcePiece.B_KNIGHT.resource, Color.BLACK, 'n', Coordinate.g8)
         board[Coordinate.h8]!!.piece = Rook(ResourcePiece.B_ROOK.resource, Color.BLACK, 'r', Coordinate.h8)
+    }
+
+    private fun setupLiveGame() {
+        if (live) {
+            gameRef = FirebaseFirestore.getInstance().document("games/$gameId")
+            Thread {
+                gameRef!!.addSnapshotListener { documentSnapshot, exception ->
+                    if (documentSnapshot!!.get("moves") != null && colorToMove != liveColor && Color.fromString(
+                            documentSnapshot.getString("lastMoveByColor")
+                        ) != liveColor
+                    ) {
+                        moves = documentSnapshot.get("moves") as MutableMap<String, String>
+                        if (moves.isNotEmpty()) {
+                            val lastMove = moves.entries.sortedByDescending { it.key.toInt() }.first()
+                            lastMoveNr = lastMove.key.toInt()
+                            val promotePiece = if (lastMove.value.length > 4) lastMove.value[4] else null
+                            val liveMove = Move(
+                                Coordinate.fromString(lastMove.value.substring(0, 2))!!,
+                                Coordinate.fromString(lastMove.value.substring(2, 4))!!,
+                                promotePiece
+                            )
+                            move(liveMove.fromCoordinate, liveMove.toCoordinate, liveMove.promotePiece, liveMove = true)
+                        }
+                    }
+                }
+            }.start()
+        }
     }
 }

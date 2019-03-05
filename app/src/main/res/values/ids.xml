@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="row1" type="id"/>
+    <item name="row2" type="id"/>
+    <item name="row3" type="id"/>
+    <item name="row4" type="id"/>
+    <item name="row5" type="id"/>
+    <item name="row6" type="id"/>
+    <item name="row7" type="id"/>
+    <item name="row8" type="id"/>
+
+    <item name="a1" type="id"/>
+    <item name="a2" type="id"/>
+    <item name="a3" type="id"/>
+    <item name="a4" type="id"/>
+    <item name="a5" type="id"/>
+    <item name="a6" type="id"/>
+    <item name="a7" type="id"/>
+    <item name="a8" type="id"/>
+
+    <item name="b1" type="id"/>
+    <item name="b2" type="id"/>
+    <item name="b3" type="id"/>
+    <item name="b4" type="id"/>
+    <item name="b5" type="id"/>
+    <item name="b6" type="id"/>
+    <item name="b7" type="id"/>
+    <item name="b8" type="id"/>
+
+    <item name="c1" type="id"/>
+    <item name="c2" type="id"/>
+    <item name="c3" type="id"/>
+    <item name="c4" type="id"/>
+    <item name="c5" type="id"/>
+    <item name="c6" type="id"/>
+    <item name="c7" type="id"/>
+    <item name="c8" type="id"/>
+
+    <item name="d1" type="id"/>
+    <item name="d2" type="id"/>
+    <item name="d3" type="id"/>
+    <item name="d4" type="id"/>
+    <item name="d5" type="id"/>
+    <item name="d6" type="id"/>
+    <item name="d7" type="id"/>
+    <item name="d8" type="id"/>
+
+    <item name="e1" type="id"/>
+    <item name="e2" type="id"/>
+    <item name="e3" type="id"/>
+    <item name="e4" type="id"/>
+    <item name="e5" type="id"/>
+    <item name="e6" type="id"/>
+    <item name="e7" type="id"/>
+    <item name="e8" type="id"/>
+
+    <item name="f1" type="id"/>
+    <item name="f2" type="id"/>
+    <item name="f3" type="id"/>
+    <item name="f4" type="id"/>
+    <item name="f5" type="id"/>
+    <item name="f6" type="id"/>
+    <item name="f7" type="id"/>
+    <item name="f8" type="id"/>
+
+    <item name="g1" type="id"/>
+    <item name="g2" type="id"/>
+    <item name="g3" type="id"/>
+    <item name="g4" type="id"/>
+    <item name="g5" type="id"/>
+    <item name="g6" type="id"/>
+    <item name="g7" type="id"/>
+    <item name="g8" type="id"/>
+
+    <item name="h1" type="id"/>
+    <item name="h2" type="id"/>
+    <item name="h3" type="id"/>
+    <item name="h4" type="id"/>
+    <item name="h5" type="id"/>
+    <item name="h6" type="id"/>
+    <item name="h7" type="id"/>
+    <item name="h8" type="id"/>
+</resources>

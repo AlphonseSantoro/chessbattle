@@ -6,7 +6,8 @@ import no.kristiania.alphonsesantoro.chessbattle.game.Coordinate
 class Rook(resource: Int, color: Color, tag: Char, coordinate: Coordinate) :
     Piece(resource, color, tag, coordinate) {
 
-    override fun showPossibleMoves(show: Boolean) {
-        showVerticalAndHorizontal(show)
+    override fun showPossibleMoves(show: Boolean, check: Boolean) {
+        super.showPossibleMoves(show, check)
+        loopHorizontalAndVerticals(show, check)
     }
 }

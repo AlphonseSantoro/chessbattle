@@ -15,6 +15,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import com.firebase.ui.auth.IdpResponse
 import com.google.android.material.navigation.NavigationView
+import no.kristiania.alphonsesantoro.chessbattle.game.Color
 
 
 class ChessBattleActivity : AppCompatActivity() {
@@ -46,11 +47,11 @@ class ChessBattleActivity : AppCompatActivity() {
                 )
                 R.id.computer_game -> findNavController(R.id.fragment).navigate(
                     R.id.boardFragment,
-                    bundleOf("stockfish" to true)
+                    bundleOf("stockfish" to true, "perspective" to Color.WHITE)
                 )
                 R.id.local_two_player -> findNavController(R.id.fragment).navigate(
                     R.id.boardFragment,
-                    bundleOf("two_player" to true)
+                    bundleOf("two_player" to true, "perspective" to Color.WHITE)
                 )
 
             }

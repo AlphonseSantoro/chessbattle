@@ -1,72 +1,72 @@
 <resources>
-    <string name="app_name">ChessBattle</string>
+    <string name="app_name" type="string">ChessBattle</string>
 
-    <string name="a8">a8</string>
-    <string name="b8">b8</string>
-    <string name="c8">c8</string>
-    <string name="d8">d8</string>
-    <string name="e8">e8</string>
-    <string name="f8">f8</string>
-    <string name="g8">g8</string>
-    <string name="h8">h8</string>
-    <string name="a7">a7</string>
-    <string name="b7">b7</string>
-    <string name="c7">c7</string>
-    <string name="d7">d7</string>
-    <string name="e7">e7</string>
-    <string name="f7">f7</string>
-    <string name="g7">g7</string>
-    <string name="h7">h7</string>
-    <string name="a6">a6</string>
-    <string name="b6">b6</string>
-    <string name="c6">c6</string>
-    <string name="d6">d6</string>
-    <string name="e6">e6</string>
-    <string name="f6">f6</string>
-    <string name="g6">g6</string>
-    <string name="h6">h6</string>
-    <string name="a5">a5</string>
-    <string name="b5">b5</string>
-    <string name="c5">c5</string>
-    <string name="d5">d5</string>
-    <string name="e5">e5</string>
-    <string name="f5">f5</string>
-    <string name="g5">g5</string>
-    <string name="h5">h5</string>
-    <string name="a4">a4</string>
-    <string name="b4">b4</string>
-    <string name="c4">c4</string>
-    <string name="d4">d4</string>
-    <string name="e4">e4</string>
-    <string name="f4">f4</string>
-    <string name="g4">g4</string>
-    <string name="h4">h4</string>
-    <string name="a3">a3</string>
-    <string name="b3">b3</string>
-    <string name="c3">c3</string>
-    <string name="d3">d3</string>
-    <string name="e3">e3</string>
-    <string name="f3">f3</string>
-    <string name="g3">g3</string>
-    <string name="h3">h3</string>
-    <string name="a2">a2</string>
-    <string name="b2">b2</string>
-    <string name="c2">c2</string>
-    <string name="d2">d2</string>
-    <string name="e2">e2</string>
-    <string name="f2">f2</string>
-    <string name="g2">g2</string>
-    <string name="h2">h2</string>
-    <string name="a1">a1</string>
-    <string name="b1">b1</string>
-    <string name="c1">c1</string>
-    <string name="d1">d1</string>
-    <string name="e1">e1</string>
-    <string name="f1">f1</string>
-    <string name="g1">g1</string>
-    <string name="h1">h1</string>
+    <string name="a8" type="string">a8</string>
+    <string name="b8" type="string">b8</string>
+    <string name="c8" type="string">c8</string>
+    <string name="d8" type="string">d8</string>
+    <string name="e8" type="string">e8</string>
+    <string name="f8" type="string">f8</string>
+    <string name="g8" type="string">g8</string>
+    <string name="h8" type="string">h8</string>
+    <string name="a7" type="string">a7</string>
+    <string name="b7" type="string">b7</string>
+    <string name="c7" type="string">c7</string>
+    <string name="d7" type="string">d7</string>
+    <string name="e7" type="string">e7</string>
+    <string name="f7" type="string">f7</string>
+    <string name="g7" type="string">g7</string>
+    <string name="h7" type="string">h7</string>
+    <string name="a6" type="string">a6</string>
+    <string name="b6" type="string">b6</string>
+    <string name="c6" type="string">c6</string>
+    <string name="d6" type="string">d6</string>
+    <string name="e6" type="string">e6</string>
+    <string name="f6" type="string">f6</string>
+    <string name="g6" type="string">g6</string>
+    <string name="h6" type="string">h6</string>
+    <string name="a5" type="string">a5</string>
+    <string name="b5" type="string">b5</string>
+    <string name="c5" type="string">c5</string>
+    <string name="d5" type="string">d5</string>
+    <string name="e5" type="string">e5</string>
+    <string name="f5" type="string">f5</string>
+    <string name="g5" type="string">g5</string>
+    <string name="h5" type="string">h5</string>
+    <string name="a4" type="string">a4</string>
+    <string name="b4" type="string">b4</string>
+    <string name="c4" type="string">c4</string>
+    <string name="d4" type="string">d4</string>
+    <string name="e4" type="string">e4</string>
+    <string name="f4" type="string">f4</string>
+    <string name="g4" type="string">g4</string>
+    <string name="h4" type="string">h4</string>
+    <string name="a3" type="string">a3</string>
+    <string name="b3" type="string">b3</string>
+    <string name="c3" type="string">c3</string>
+    <string name="d3" type="string">d3</string>
+    <string name="e3" type="string">e3</string>
+    <string name="f3" type="string">f3</string>
+    <string name="g3" type="string">g3</string>
+    <string name="h3" type="string">h3</string>
+    <string name="a2" type="string">a2</string>
+    <string name="b2" type="string">b2</string>
+    <string name="c2" type="string">c2</string>
+    <string name="d2" type="string">d2</string>
+    <string name="e2" type="string">e2</string>
+    <string name="f2" type="string">f2</string>
+    <string name="g2" type="string">g2</string>
+    <string name="h2" type="string">h2</string>
+    <string name="a1" type="string">a1</string>
+    <string name="b1" type="string">b1</string>
+    <string name="c1" type="string">c1</string>
+    <string name="d1" type="string">d1</string>
+    <string name="e1" type="string">e1</string>
+    <string name="f1" type="string">f1</string>
+    <string name="g1" type="string">g1</string>
+    <string name="h1" type="string">h1</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="title_activity_maps">Map</string>
+    <string name="hello_blank_fragment" type="string">Hello blank fragment</string>
+    <string name="title_activity_maps" type="string">Map</string>
 </resources>

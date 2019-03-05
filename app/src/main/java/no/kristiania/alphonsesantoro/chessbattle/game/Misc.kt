@@ -24,6 +24,9 @@ enum class Color {
         get() = if (this == WHITE) "w" else "b"
 
     companion object {
+        val random: Color
+            get() = arrayOf(WHITE, BLACK).random()
+
         fun fromFen(): Color {
             return if (Uci.fen().split(" ")[1] == "w") WHITE else BLACK
         }

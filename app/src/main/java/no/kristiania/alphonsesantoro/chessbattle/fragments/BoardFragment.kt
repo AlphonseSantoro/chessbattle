@@ -9,11 +9,11 @@ import android.view.View
 import android.view.ViewGroup
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.firestore.FirebaseFirestore
 import no.kristiania.alphonsesantoro.chessbattle.R
 
 import no.kristiania.alphonsesantoro.chessbattle.game.Color
 import no.kristiania.alphonsesantoro.chessbattle.game.Game
+import android.widget.FrameLayout
 
 
 private const val LIVE = "live"
@@ -22,6 +22,8 @@ private const val STOCKFISH = "stockfish"
 private const val WHITE = "white"
 private const val BLACK = "black"
 private const val GAME_ID = "game_id"
+private const val PERSPECTIVE = "perspective"
+private const val OTHER_USERNAME = "other_username"
 
 class BoardFragment : Fragment() {
     private var listener: OnFragmentInteractionListener? = null
@@ -30,8 +32,10 @@ class BoardFragment : Fragment() {
     private var twoPlayer: Boolean = false
     private var white: String? = null
     private var black: String? = null
+    private var perspective: Color = Color.WHITE
     private var gameId: String? = null
     private var currentUser: FirebaseUser? = null
+    private var otherUserName: String? = null
 
     lateinit var game: Game
 
@@ -44,6 +48,8 @@ class BoardFragment : Fragment() {
             white = it.getString(WHITE)
             black = it.getString(BLACK)
             gameId = it.getString(GAME_ID)
+            perspective = it.get(PERSPECTIVE) as Color
+            otherUserName = it.getString(OTHER_USERNAME)
         }
     }
 
@@ -51,7 +57,13 @@ class BoardFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_board, container, false)
+        if (stockfish) perspective = Color.random
+        val layout = if (perspective == Color.WHITE) R.layout.white_perspective else R.layout.black_perspective
+        val view = inflater.inflate(R.layout.fragment_board, container, false)
+        val boardPerspective = inflater.inflate(layout, null, false)
+        val boardFrame = view.findViewById<FrameLayout>(R.id.boardFrame)
+        boardFrame.addView(boardPerspective)
+        return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -61,9 +73,19 @@ class BoardFragment : Fragment() {
         }
         game = if (live) {
             val color = if (currentUser!!.uid == white) Color.WHITE else Color.BLACK
-            Game(activity!!, view, live, twoPlayer, stockfish, liveColor = color, gameId = gameId)
+            Game(
+                activity!!,
+                view,
+                live,
+                twoPlayer,
+                stockfish,
+                perspective,
+                liveColor = color,
+                gameId = gameId,
+                otherUsername = otherUserName
+            )
         } else {
-            Game(activity!!, view, live, twoPlayer, stockfish)
+            Game(activity!!, view, live, twoPlayer, stockfish, perspective, otherUsername = otherUserName)
         }
     }
 
@@ -83,42 +105,10 @@ class BoardFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-//        doUnbindService()
     }
 
     interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         fun onFragmentInteraction(uri: Uri)
     }
-
-//    private fun doBindService(ip: String? = null, port: Int? = null, isHost: Boolean = false) {
-//        val intent = Intent(context, SocketService::class.java)
-//        intent.putExtra("ip", ip)
-//        intent.putExtra("port", port)
-//        intent.putExtra("isHost", isHost)
-//        activity!!.bindService(intent, mConnection!!, Context.BIND_AUTO_CREATE)
-//        println(mConnection)
-//    }
-//
-//
-//    private fun doUnbindService() {
-//        println("DETACHING")
-//        if (mConnection != null) activity!!.unbindService(mConnection!!)
-//    }
-//
-//    inner class ServiceConnectionImpl : ServiceConnection {
-//        override fun onServiceDisconnected(name: ComponentName?) {
-//            mBoundService = null
-//        }
-//
-//        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-//            println("Connected Service")
-//            mBoundService = (service as SocketService.LocalBinder).service
-//            Game.socketService = (service as SocketService.LocalBinder).service
-//            mBoundService!!.inputStreamReader = mBoundService!!.socket!!.getInputStream().reader(Charsets.UTF_8)
-//            mBoundService!!.outputStreamWriter = mBoundService!!.socket!!.getOutputStream().writer(Charsets.UTF_8)
-//            game = Game(activity!!, view, live, twoPlayer, stockfish, liveColor = color)
-//        }
-//
-//    }
 }
