@@ -6,6 +6,7 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.ViewInteraction
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.typeText
+import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.runner.AndroidJUnit4
 
@@ -32,6 +33,5 @@ class ExampleInstrumentedTest {
     fun moves_piece() {
         onView(withId(R.id.d2)).perform(click())
         onView(withId(R.id.d4)).perform(click())
-
     }
 }

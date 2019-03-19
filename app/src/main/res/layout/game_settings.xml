@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/gameSettingsBlock"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/colorPrimaryDark"
+    android:orientation="horizontal"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintTop_toBottomOf="@id/bottomBlock">
+
+    <ImageView
+        android:id="@+id/gameSettings"
+        android:layout_width="0dp"
+        android:layout_height="@android:dimen/app_icon_size"
+        android:layout_weight="0.25"
+        android:src="@drawable/ic_game_settings" />
+
+    <ImageView
+        android:id="@+id/flip_board"
+        android:layout_width="0dp"
+        android:layout_height="@android:dimen/app_icon_size"
+        android:layout_weight="0.25"
+        android:src="@drawable/ic_flip_board" />
+
+    <ImageView
+        android:id="@+id/showMoveBack"
+        android:layout_width="0dp"
+        android:layout_height="@android:dimen/app_icon_size"
+        android:layout_weight="0.25"
+        android:src="@drawable/ic_arrow_left" />
+
+    <ImageView
+        android:id="@+id/showMoveForward"
+        android:layout_width="0dp"
+        android:layout_height="@android:dimen/app_icon_size"
+        android:layout_weight="0.25"
+        android:src="@drawable/ic_arrow_right" />
+</LinearLayout>

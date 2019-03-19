@@ -1,23 +1,20 @@
 package no.kristiania.alphonsesantoro.chessbattle.game
 
-import com.google.gson.Gson
 import com.google.gson.JsonObject
-import com.google.gson.JsonParser
 import jstockfish.Uci
 import no.kristiania.alphonsesantoro.chessbattle.R
 import no.kristiania.alphonsesantoro.chessbattle.game.pieces.Piece
 import java.lang.IllegalArgumentException
-import java.lang.NullPointerException
 
 data class Square(
     val coordinate: Coordinate,
     var piece: Piece? = null,
     val emptySquareRes: Int = R.drawable.ic_blank_tile,
-    var foregroundResource: Int = R.drawable.ic_blank_tile
+    var foregroundResource: Int = R.drawable.ic_blank_tile,
+    var showForeground: Boolean = false
 )
 
 enum class Color {
-
     WHITE, BLACK;
 
     val fen: String
@@ -31,13 +28,28 @@ enum class Color {
             return if (Uci.fen().split(" ")[1] == "w") WHITE else BLACK
         }
 
-        fun fromString(coordinate: String?): Color? {
-            return try {
-                Color.valueOf(coordinate!!)
-            } catch (e: IllegalArgumentException) {
-                null
-            } catch (e: NullPointerException) {
-                null
+        fun fromChar(char: Char): Color {
+            return if (char.isUpperCase()) WHITE else BLACK
+        }
+    }
+}
+
+enum class GameMode {
+    STOCKFISH, TWO_PLAYER, LIVE, UNKNOWN
+}
+
+enum class GameStatus(val result: Int) {
+    WHITE_MATE(0), BLACK_MATE(1), STALE_MATE(2), DRAW(3), RESIGNED(4), INPROGRESS(-1);
+
+    companion object {
+        fun fromInt(int: Int): GameStatus {
+            return when (int) {
+                0 -> WHITE_MATE
+                1 -> BLACK_MATE
+                2 -> STALE_MATE
+                3 -> DRAW
+                4 -> RESIGNED
+                else -> INPROGRESS
             }
         }
     }
@@ -62,26 +74,6 @@ enum class Coordinate {
             }
         }
     }
-}
-
-enum class ResourcePiece(val resource: Int) {
-    W_ROOK(R.drawable.ic_white_rook),
-    B_ROOK(R.drawable.ic_black_rook),
-    W_BISHOP(R.drawable.ic_white_bishop),
-    B_BISHOP(R.drawable.ic_black_bishop),
-    W_KNIGHT(R.drawable.ic_white_knight),
-    B_KNIGHT(R.drawable.ic_black_knight),
-    W_KING(R.drawable.ic_white_king),
-    B_KING(R.drawable.ic_black_king),
-    W_QUEEN(R.drawable.ic_white_queen),
-    B_QUEEN(R.drawable.ic_black_queen),
-    W_PAWN(R.drawable.ic_white_pawn),
-    B_PAWN(R.drawable.ic_black_pawn);
-}
-
-data class Move(val fromCoordinate: Coordinate, val toCoordinate: Coordinate, val promotePiece: Char? = null) {
-    val toJson: String
-        get() = Gson().toJson(this)
 }
 
 val JsonObject.toMap: Map<String, String>

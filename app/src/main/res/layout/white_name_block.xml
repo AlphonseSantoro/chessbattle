@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/whiteNameBlock"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:background="@color/colorPrimaryDark"
+    android:fadingEdge="horizontal">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/nameWhite"
+        android:layout_width="0dp"
+        android:layout_weight="0.7"
+        android:layout_height="match_parent"
+        android:autoSizeMinTextSize="12dp"
+        android:autoSizeStepGranularity="0.5dp"
+        android:autoSizeTextType="uniform"
+        android:maxLines="1"
+        android:gravity="center_vertical"
+        android:textColor="@color/colorBoardWhite"
+        android:text="White" />
+    <Chronometer
+        android:id="@+id/whiteChronometer"
+        android:layout_height="match_parent"
+        android:layout_width="0dp"
+        android:layout_weight="0.3"
+        android:padding="8dp"
+        android:gravity="center"
+        android:autoSizeMinTextSize="12dp"
+        android:autoSizeStepGranularity="0.5dp"
+        android:autoSizeTextType="uniform"
+        android:textColor="@color/colorBoardWhite"
+        android:maxLines="1" />
+</LinearLayout>

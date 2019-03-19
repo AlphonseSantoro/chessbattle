@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ChessBattle</string>
+    <string name="email">E-post</string>
+    <string name="password">Passord</string>
+    <string name="username">Brukernavn</string>
+    <string name="sign_in">Logg inn</string>
+    <string name="register_and_sign_in">Registrer og logg inn</string>
+    <string name="playerTwo">Spiller To</string>
+    <string name="resign">Avslutt partiet</string>
+    <string name="offer_draw">Tilby remi</string>
+</resources>

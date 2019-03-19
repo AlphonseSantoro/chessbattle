@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name" type="string">ChessBattle</string>
+    <string name="email">Email</string>
 
     <string name="a8" type="string">a8</string>
     <string name="b8" type="string">b8</string>
@@ -65,8 +66,12 @@
     <string name="f1" type="string">f1</string>
     <string name="g1" type="string">g1</string>
     <string name="h1" type="string">h1</string>
+    <string name="password">Password</string>
+    <string name="username">Username</string>
+    <string name="sign_in">Sign in</string>
+    <string name="register_and_sign_in">Register and sign in</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment" type="string">Hello blank fragment</string>
-    <string name="title_activity_maps" type="string">Map</string>
+    <string name="playerTwo">Player Two</string>
+    <string name="resign">Resign game</string>
+    <string name="offer_draw">Offer draw</string>
 </resources>

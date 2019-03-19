@@ -23,8 +23,9 @@ abstract class Piece(
 
     internal fun isLegalSquare(show: Boolean, coordinate: Coordinate?, promotePiece: Char? = null): Boolean {
         if (coordinate == null) return false
-        val foregroundId = if (show) R.drawable.ic_square_suggestion else R.drawable.ic_blank_tile
         val square = Game.board[coordinate]!!
+        square.showForeground = show
+        val foregroundId = if (show) R.drawable.ic_square_suggestion else R.drawable.ic_blank_tile
         if (square.coordinate == this.coordinate) return true // Same square, do nothing
         var move = "${this.coordinate.name}${coordinate.name}"
         if (promotePiece != null) move += promotePiece
@@ -181,5 +182,25 @@ abstract class Piece(
 
     internal open fun showPossibleMoves(show: Boolean, check: Boolean) {
         legalMovesCount = 0
+    }
+
+    companion object {
+        fun getPiece(char: Char, coordinate: Coordinate) : Piece? {
+            return when(char){
+                'p' -> Pawn(R.drawable.ic_black_pawn, Color.fromChar(char), char, coordinate)
+                'r' -> Rook(R.drawable.ic_black_rook, Color.fromChar(char), char, coordinate)
+                'b' -> Bishop(R.drawable.ic_black_bishop, Color.fromChar(char), char, coordinate)
+                'n' -> Knight(R.drawable.ic_black_knight, Color.fromChar(char), char, coordinate)
+                'q' -> Queen(R.drawable.ic_black_queen, Color.fromChar(char), char, coordinate)
+                'k' -> King(R.drawable.ic_black_king, Color.fromChar(char), char, coordinate)
+                'P' -> Pawn(R.drawable.ic_white_pawn, Color.fromChar(char), char, coordinate)
+                'R' -> Rook(R.drawable.ic_white_rook, Color.fromChar(char), char, coordinate)
+                'B' -> Bishop(R.drawable.ic_white_bishop, Color.fromChar(char), char, coordinate)
+                'N' -> Knight(R.drawable.ic_white_knight, Color.fromChar(char), char, coordinate)
+                'Q' -> Queen(R.drawable.ic_white_queen, Color.fromChar(char), char, coordinate)
+                'K' -> King(R.drawable.ic_white_king, Color.fromChar(char), char, coordinate)
+                else -> null
+            }
+        }
     }
 }
