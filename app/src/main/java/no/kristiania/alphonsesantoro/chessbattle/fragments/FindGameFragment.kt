@@ -30,6 +30,7 @@ import com.google.android.gms.games.RealTimeMultiplayerClient
 import com.google.android.gms.games.multiplayer.Invitation
 import com.google.android.gms.games.multiplayer.InvitationCallback
 import com.google.android.gms.games.multiplayer.realtime.RoomConfig
+import com.google.gson.Gson
 
 class FindGameFragment : BaseFragment(), OnMapReadyCallback {
     private val TAG = "FindGame"
@@ -61,14 +62,16 @@ class FindGameFragment : BaseFragment(), OnMapReadyCallback {
             .registerInvitationCallback(mInvitationCallbackHandler)
     }
 
-    private fun sendInvite(playerId: String): Boolean {
+    private fun sendInvite(user: FindGameViewModel.FirebaseUser): Boolean {
+        sharedViewModel.acceptedGame = false
+        sharedViewModel.declinedGame = false
         sharedViewModel.mRoomConfig = RoomConfig.builder(sharedViewModel.mRoomUpdateCallback)
             .setOnMessageReceivedListener(sharedViewModel.mMessageReceivedHandler)
             .setRoomStatusUpdateCallback(sharedViewModel.mRoomStatusCallbackHandler)
-            .addPlayersToInvite(playerId).build()
+            .addPlayersToInvite(user.id).build()
 
         mRealTimeMultiplayerClient.create(sharedViewModel.mRoomConfig).addOnSuccessListener {
-            navigateTurnBased("Challenging $playerId", null)
+            navigateTurnBased("Challenging ${user.username}", null)
         }
         return true
     }
@@ -145,13 +148,12 @@ class FindGameFragment : BaseFragment(), OnMapReadyCallback {
             lastLocation.addOnSuccessListener {
                 mLastKnownLocation = it
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(it.latitude, it.longitude), 14f))
-                viewModel.addMyLocation(mLastKnownLocation, sharedViewModel.user!!)
+                viewModel.updateStatus(sharedViewModel.user!!, mLastKnownLocation, true)
             }
         }
         viewModel.showNearbyPlayers(mMap)
-//        viewModel.listenForNewPlayers(mMap)
         mMap.setOnMarkerClickListener {
-            sendInvite(it.snippet)
+            sendInvite(Gson().fromJson(it.snippet, FindGameViewModel.FirebaseUser::class.java))
         }
     }
 
@@ -170,5 +172,20 @@ class FindGameFragment : BaseFragment(), OnMapReadyCallback {
             return false
         }
         return true
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewModel.updateStatus(sharedViewModel.user!!, mLastKnownLocation, false)
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        viewModel.updateStatus(sharedViewModel.user!!, mLastKnownLocation, false)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.updateStatus(sharedViewModel.user!!, mLastKnownLocation, false)
     }
 }

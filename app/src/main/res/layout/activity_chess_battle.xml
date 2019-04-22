@@ -50,6 +50,7 @@
                             android:autoSizeStepGranularity="0.5dp"
                             android:autoSizeTextType="uniform"
                             android:text=""
+                            android:textColor="@color/colorPrimary"
                             android:textAlignment="center" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </RelativeLayout>

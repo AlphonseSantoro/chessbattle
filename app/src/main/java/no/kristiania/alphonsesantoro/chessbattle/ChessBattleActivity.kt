@@ -29,16 +29,11 @@ import no.kristiania.alphonsesantoro.chessbattle.viewmodels.SharedViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import android.content.Intent
 import android.util.Log
-import com.google.android.gms.auth.api.Auth
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.games.multiplayer.Invitation
-import com.google.android.gms.games.multiplayer.InvitationCallback
 
 const val RC_SIGN_IN = 9001
-const val RC_SELECT_PLAYERS = 9006
 
 class ChessBattleActivity : AppCompatActivity() {
 
@@ -71,7 +66,7 @@ class ChessBattleActivity : AppCompatActivity() {
         sharedViewModel = ViewModelProviders.of(this).get(SharedViewModel::class.java)
         val sharedPreferences = getSharedPreferences("User", Context.MODE_PRIVATE)
         val email = sharedPreferences.getString("email", SharedViewModel.defaultEmail)
-        sharedViewModel.setUser(email)
+        val userThread = sharedViewModel.setUser(email)
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN)
             .requestEmail()
@@ -81,7 +76,8 @@ class ChessBattleActivity : AppCompatActivity() {
             .build()
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
         setNavigationListener()
-        if (sharedViewModel.user != null) showGamesInProgress()
+        userThread.join()
+        showGamesInProgress()
     }
 
     private fun signInSilently() {
@@ -100,6 +96,9 @@ class ChessBattleActivity : AppCompatActivity() {
         repository = GameRepository(application, sharedViewModel.user!!.id!!)
         repository.getUsersGames().observe(this, Observer { list ->
             if (list.isNotEmpty()) {
+                runOnUiThread {
+                    number_of_games_ip.text = list.count().toString()
+                }
                 games_in_progress_action.setOnClickListener {
                     val inflater = LayoutInflater.from(this)
                     val gameView = inflater.inflate(R.layout.games_in_progress, null)
@@ -187,9 +186,6 @@ class ChessBattleActivity : AppCompatActivity() {
 
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
-        Log.d("ActivityResult", requestCode.toString())
-
         if (requestCode == RC_SIGN_IN) {
             try {
                 val result = GoogleSignIn.getSignedInAccountFromIntent(data)
@@ -201,12 +197,9 @@ class ChessBattleActivity : AppCompatActivity() {
             } catch (e: ApiException) {
                 // The ApiException status code indicates the detailed failure reason.
                 // Please refer to the GoogleSignInStatusCodes class reference for more information.
-                Log.w("SignIn", e.message)
+                Log.d("SignIn", "Message: ${e.message}")
                 findNavController(R.id.fragment).navigate(R.id.mainMenuFragment, bundleOf())
             }
-        }
-        if(requestCode == RC_SELECT_PLAYERS){
-
         }
     }
 }
