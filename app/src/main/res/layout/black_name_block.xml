@@ -7,26 +7,13 @@
 
     <TextView
         android:id="@+id/nameBlack"
-        android:layout_width="0dp"
-        android:layout_weight="0.7"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:autoSizeMinTextSize="12dp"
         android:autoSizeStepGranularity="0.5dp"
         android:autoSizeTextType="uniform"
-        android:maxLines="1"
-        android:gravity="center_vertical"
-        android:text="Sample black name"
-        android:textColor="@color/colorBoardWhite"/>
-    <Chronometer
-        android:id="@+id/blackChronometer"
-        android:layout_height="match_parent"
-        android:layout_width="0dp"
-        android:layout_weight="0.3"
-        android:padding="8dp"
         android:gravity="center"
-        android:autoSizeMinTextSize="12dp"
-        android:autoSizeStepGranularity="0.5dp"
-        android:autoSizeTextType="uniform"
-        android:textColor="@color/colorBoardWhite"
-        android:maxLines="1" />
+        android:maxLines="1"
+        android:text="Sample black name"
+        android:textColor="@color/design_default_color_surface" />
 </LinearLayout>

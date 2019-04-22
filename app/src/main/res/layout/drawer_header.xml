@@ -17,6 +17,7 @@
         android:autoSizeTextType="uniform"
         android:maxLines="1"
         android:text=""
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
+        android:textColor="@color/design_default_color_surface"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"/>
 
 </LinearLayout>

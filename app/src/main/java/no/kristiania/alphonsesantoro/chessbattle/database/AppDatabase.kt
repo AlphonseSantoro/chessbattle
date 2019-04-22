@@ -8,7 +8,7 @@ import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-@Database(entities = [UserModel::class, GameModel::class, GameLineModel::class], version = 4, exportSchema = false)
+@Database(entities = [UserModel::class, GameModel::class, GameLineModel::class], version = 5, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun gameDao(): GameModelDao
@@ -25,7 +25,7 @@ abstract class AppDatabase : RoomDatabase() {
                         context.applicationContext,
                         AppDatabase::class.java,
                         "chessbattle"
-                    ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4).addCallback(object : Callback() {
+                    ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5).addCallback(object : Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)
                             db.execSQL("INSERT INTO UserModel(id, username, email, firebase_key) VALUES (1, 'Player One', 'default@chessbattle.com', null)")
@@ -52,6 +52,12 @@ abstract class AppDatabase : RoomDatabase() {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("ALTER TABLE `GameLineModel` ADD whiteFen TEXT")
                 database.execSQL("ALTER TABLE `GameLineModel` ADD blackFen TEXT")
+            }
+        }
+
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE `UserModel` ADD google_play_key TEXT")
             }
         }
     }

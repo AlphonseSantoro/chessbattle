@@ -7,6 +7,19 @@ import jstockfish.Uci.position
 import no.kristiania.alphonsesantoro.chessbattle.game.pieces.*
 import no.kristiania.alphonsesantoro.chessbattle.util.OutputListenerImpl
 import no.kristiania.alphonsesantoro.chessbattle.util.asInt
+import java.io.Serializable
+
+data class GameState(
+    var fen: String,
+    var fromCoordinate: Coordinate? = null,
+    var toCoordinate: Coordinate? = null,
+    var promotePiece: Char? = null,
+    val white: String,
+    val black: String,
+    val whiteId: String,
+    val blackId: String,
+    val roomId: String?
+) : Serializable
 
 open class Game(val perspective: Color, var gameStatus: GameStatus, val onPieceMovedListener: OnPieceMovedListener?) {
 
@@ -48,7 +61,6 @@ open class Game(val perspective: Color, var gameStatus: GameStatus, val onPieceM
     internal var lastMovedPiece: Piece? = null
     internal var fromCoordinate: Coordinate? = null
     internal var toCoordinate: Coordinate? = null
-    internal var lastMoveNr: Int = 0
     var turn = MutableLiveData<Color>(colorToMove)
 
     init {
@@ -74,8 +86,8 @@ open class Game(val perspective: Color, var gameStatus: GameStatus, val onPieceM
         } else {
             isPromotion = false
         }
+        val fenTokens = Uci.fen().split(" ")
         if (colorToMove == board[fromCoordinate]?.piece?.color && position("fen ${fen()} moves $move")) {
-            val fenTokens = Uci.fen().split(" ")
             castle(fenTokens[2], fromCoordinate, toCoordinate)
             enPassant(fenTokens[3], fromCoordinate, toCoordinate)
             movePiece(fromCoordinate, toCoordinate, promotePiece)

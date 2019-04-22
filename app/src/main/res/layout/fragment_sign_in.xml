@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBoardWhite"
+    android:background="@color/design_default_color_on_secondary"
     android:orientation="vertical"
     android:padding="16dp">
 
@@ -36,7 +36,7 @@
             android:gravity="center"
             android:maxLines="1"
             android:text="@string/email"
-            android:textColor="@color/colorPrimary" />
+            android:textColor="@color/design_default_color_surface" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -50,13 +50,13 @@
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:inputType="textEmailAddress"
-                android:textColor="@color/colorPrimary" />
+                android:textColor="@color/design_default_color_surface" />
 
             <TextView
                 android:id="@+id/email_validation"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@android:color/holo_red_dark"
+                android:textColor="@color/design_default_color_error"
                 android:textStyle="italic" />
         </LinearLayout>
     </LinearLayout>
@@ -79,7 +79,7 @@
             android:gravity="center"
             android:maxLines="1"
             android:text="@string/username"
-            android:textColor="@color/colorPrimary" />
+            android:textColor="@color/design_default_color_surface" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -92,13 +92,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:textColor="@color/colorPrimary" />
+                android:textColor="@color/design_default_color_surface" />
 
             <TextView
                 android:id="@+id/username_validation"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@android:color/holo_red_dark"
+                android:textColor="@color/design_default_color_error"
                 android:textStyle="italic" />
         </LinearLayout>
 
@@ -121,7 +121,7 @@
             android:gravity="center"
             android:maxLines="1"
             android:text="@string/password"
-            android:textColor="@color/colorPrimary" />
+            android:textColor="@color/design_default_color_surface" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -135,13 +135,13 @@
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:inputType="textPassword"
-                android:textColor="@color/colorPrimary" />
+                android:textColor="@color/design_default_color_surface" />
 
             <TextView
                 android:id="@+id/password_validation"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@android:color/holo_red_dark"
+                android:textColor="@color/design_default_color_error"
                 android:textStyle="italic" />
         </LinearLayout>
     </LinearLayout>
@@ -150,18 +150,18 @@
         android:id="@+id/signInBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
+        android:background="@color/design_default_color_primary"
         android:padding="5dp"
         android:text="@string/sign_in"
-        android:textColor="@color/colorBoardWhite" />
+        android:textColor="@color/design_default_color_surface" />
 
     <Button
         android:id="@+id/registerBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
+        android:background="@color/design_default_color_primary"
         android:padding="5dp"
         android:text="@string/register_and_sign_in"
-        android:textColor="@color/colorLightGray2"
+        android:textColor="@color/design_default_color_surface"
         android:visibility="gone" />
 </LinearLayout>

@@ -1,5 +1,7 @@
 package no.kristiania.alphonsesantoro.chessbattle
 
+import android.app.Application
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -23,8 +25,20 @@ import no.kristiania.alphonsesantoro.chessbattle.adapters.GamesInProgressRecycle
 import no.kristiania.alphonsesantoro.chessbattle.database.GameRepository
 import no.kristiania.alphonsesantoro.chessbattle.game.Color
 import no.kristiania.alphonsesantoro.chessbattle.game.GameMode.*
-import no.kristiania.alphonsesantoro.chessbattle.game.GameStatus
 import no.kristiania.alphonsesantoro.chessbattle.viewmodels.SharedViewModel
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import android.content.Intent
+import android.util.Log
+import com.google.android.gms.auth.api.Auth
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.games.multiplayer.Invitation
+import com.google.android.gms.games.multiplayer.InvitationCallback
+
+const val RC_SIGN_IN = 9001
+const val RC_SELECT_PLAYERS = 9006
 
 class ChessBattleActivity : AppCompatActivity() {
 
@@ -34,6 +48,7 @@ class ChessBattleActivity : AppCompatActivity() {
     lateinit var navigationView: NavigationView
     lateinit var sharedViewModel: SharedViewModel
     lateinit var repository: GameRepository
+    private lateinit var mGoogleSignInClient: GoogleSignInClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,16 +69,31 @@ class ChessBattleActivity : AppCompatActivity() {
         navigationView = findViewById(R.id.nav_view)
 
         sharedViewModel = ViewModelProviders.of(this).get(SharedViewModel::class.java)
-        logIn(firebaseUser?.email)
+        val sharedPreferences = getSharedPreferences("User", Context.MODE_PRIVATE)
+        val email = sharedPreferences.getString("email", SharedViewModel.defaultEmail)
+        sharedViewModel.setUser(email)
 
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN)
+            .requestEmail()
+            .requestProfile()
+            .requestId()
+            .requestServerAuthCode(getString(R.string.default_web_client_id), true)
+            .build()
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
         setNavigationListener()
+        if (sharedViewModel.user != null) showGamesInProgress()
     }
 
-    private fun logIn(email: String?) {
-        Thread {
-            sharedViewModel.setUser(email).join() // Wait for user to be set
-            runOnUiThread { showGamesInProgress() }
-        }.start()
+    private fun signInSilently() {
+        mGoogleSignInClient.silentSignIn()
+            .addOnCompleteListener {
+                if (it.isSuccessful) {
+                    sharedViewModel.signInWithFirebase(it.result!!)
+                    runOnUiThread { showGamesInProgress() }
+                } else {
+                    startActivityForResult(mGoogleSignInClient.signInIntent, RC_SIGN_IN)
+                }
+            }
     }
 
     private fun showGamesInProgress() {
@@ -96,7 +126,6 @@ class ChessBattleActivity : AppCompatActivity() {
 
     private fun setNavigationListener() {
         navigationView.setNavigationItemSelectedListener { menuItem ->
-            menuItem.isChecked = true
             drawerLayout.closeDrawers()
             when (menuItem.itemId) {
                 R.id.live_game -> findNavController(R.id.fragment).navigate(
@@ -111,11 +140,8 @@ class ChessBattleActivity : AppCompatActivity() {
                     R.id.boardFragment,
                     bundleOf("gameMode" to TWO_PLAYER, "perspective" to Color.WHITE, "gameId" to -1L)
                 )
-                R.id.mainMenuFragment -> findNavController(R.id.fragment).navigate(
-                    R.id.boardFragment,
-                    bundleOf()
-                )
-                R.id.signIn -> findNavController(R.id.fragment).navigate(R.id.signInFragment, bundleOf())
+                R.id.home -> findNavController(R.id.fragment).navigate(R.id.mainMenuFragment, bundleOf())
+                R.id.signIn -> signInSilently()
                 R.id.signOut -> {
                     auth.signOut()
                     firebaseUser = auth.currentUser
@@ -156,6 +182,31 @@ class ChessBattleActivity : AppCompatActivity() {
                 true
             }
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        Log.d("ActivityResult", requestCode.toString())
+
+        if (requestCode == RC_SIGN_IN) {
+            try {
+                val result = GoogleSignIn.getSignedInAccountFromIntent(data)
+                val account = result.getResult(ApiException::class.java)
+                Log.d("SignIn", "AuthCode: ${account?.serverAuthCode}")
+                // Signed in successfully, show authenticated UI.
+                sharedViewModel.signInWithFirebase(account!!)
+                findNavController(R.id.fragment).navigate(R.id.mainMenuFragment, bundleOf())
+            } catch (e: ApiException) {
+                // The ApiException status code indicates the detailed failure reason.
+                // Please refer to the GoogleSignInStatusCodes class reference for more information.
+                Log.w("SignIn", e.message)
+                findNavController(R.id.fragment).navigate(R.id.mainMenuFragment, bundleOf())
+            }
+        }
+        if(requestCode == RC_SELECT_PLAYERS){
+
         }
     }
 }

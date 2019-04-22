@@ -1,7 +1,7 @@
 package no.kristiania.alphonsesantoro.chessbattle.database
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
+import com.google.android.gms.maps.model.LatLng
 import org.jetbrains.annotations.NotNull
 
 @Entity(indices = [Index(value = ["id"]), Index(value = ["userName"], unique = true), Index(value = ["email"], unique = true)])
@@ -12,7 +12,8 @@ data class UserModel(
     var userName: String,
     @NotNull
     var email: String,
-    var firebase_key: String?
+    var firebase_key: String?,
+    var google_play_key: String?
 ): BaseModel()
 
 @Dao

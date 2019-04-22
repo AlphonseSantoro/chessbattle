@@ -9,6 +9,7 @@ cmake_minimum_required(VERSION 3.4.1)
 # define multiple libraries by adding multiple add_library() commands,
 # and CMake builds them for you. When you build your app, Gradle
 # automatically packages shared libraries with your APK.
+set(ANDROID_STL "c++_shared")
 
 add_library(# Specifies the name of the library.
         jstockfish

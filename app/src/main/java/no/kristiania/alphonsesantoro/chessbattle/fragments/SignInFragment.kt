@@ -9,25 +9,41 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import androidx.navigation.fragment.findNavController
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.drive.Drive
+import com.google.firebase.auth.PlayGamesAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
-import kotlinx.android.synthetic.main.activity_chess_battle.*
 import kotlinx.android.synthetic.main.fragment_sign_in.*
 import kotlinx.android.synthetic.main.fragment_sign_in.view.*
 
 import no.kristiania.alphonsesantoro.chessbattle.R
 import no.kristiania.alphonsesantoro.chessbattle.database.AppDatabase
 import no.kristiania.alphonsesantoro.chessbattle.database.UserRepository
+import com.google.android.gms.tasks.OnCompleteListener
 
 const val emailRegex =
     "(?:[a-z0-9!#\$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#\$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
 
 class SignInFragment : BaseFragment() {
 
+    private lateinit var mGoogleSignInClient: GoogleSignInClient
+    private var account: GoogleSignInAccount? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-
-        }
+//        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN)
+//            .requestEmail()
+//            .requestProfile()
+//            .requestServerAuthCode(getString(R.string.default_web_client_id), true)
+//            .build()
+//        mGoogleSignInClient = GoogleSignIn.getClient(activity!!, gso)
+//        mGoogleSignInClient.signOut()
+//        account = GoogleSignIn.getLastSignedInAccount(activity!!)
+////        Log.w("SignIn", account?.email)
+//        signInSilently()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -88,7 +104,7 @@ class SignInFragment : BaseFragment() {
                         it.result!!.user.updateProfile(
                             UserProfileChangeRequest.Builder().setDisplayName(userNameField.text.toString()).build()
                         ).addOnCompleteListener {
-                            if(it.isSuccessful){
+                            if (it.isSuccessful) {
                                 sharedViewModel.setUser(auth.currentUser?.email)
                             }
                         }
@@ -96,7 +112,8 @@ class SignInFragment : BaseFragment() {
                     } else {
                         findNavController().navigate(R.id.signInFragment)
                         Log.w("Register", it.exception!!.message)
-                        Toast.makeText(context, "Could not create user: ${it.exception?.message}", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "Could not create user: ${it.exception?.message}", Toast.LENGTH_LONG)
+                            .show()
                     }
                 }
         }
@@ -121,6 +138,23 @@ class SignInFragment : BaseFragment() {
             }
         }.start()
     }
+
+//    private fun signInSilently() {
+//        val signInOptions = GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN
+//        if (GoogleSignIn.hasPermissions(account, *signInOptions.scopeArray)) {
+//            sharedViewModel.signInWithFirebase(account!!)
+//        } else {
+//            // Haven't been signed-in before. Try the silent sign-in first.
+//            mGoogleSignInClient.silentSignIn()
+//                .addOnCompleteListener {
+//                    if (it.isSuccessful) {
+//                        sharedViewModel.signInWithFirebase(it.result!!)
+//                    } else {
+//                        activity!!.startActivityForResult(mGoogleSignInClient.signInIntent, RC_SIGN_IN)
+//                    }
+//                }
+//        }
+//    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

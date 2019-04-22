@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    >
-
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group>
         <item
             android:id="@+id/signIn"
@@ -23,8 +20,7 @@
         <item
             android:id="@+id/local_two_player"
             android:icon="@drawable/ic_two_player"
-            android:title="Local two player"
-            />
+            android:title="Local two player" />
         <item
             android:id="@+id/signOut"
             android:icon="@drawable/ic_power_settings"

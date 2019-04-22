@@ -1,19 +1,31 @@
 package no.kristiania.alphonsesantoro.chessbattle.fragments
 
 import android.content.Context
+import android.content.Context.SENSOR_SERVICE
 import android.content.res.Configuration
 import android.graphics.Point
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
+import android.media.MediaPlayer
 import android.os.Bundle
+import android.util.FloatMath
 import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.games.multiplayer.realtime.Room
+import com.google.android.gms.games.multiplayer.realtime.RoomConfig
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.gson.Gson
 import jstockfish.Uci
 import jstockfish.Uci.fen
 import kotlinx.android.synthetic.main.black_promote_popup.view.*
@@ -22,40 +34,110 @@ import kotlinx.android.synthetic.main.game_settings_menu.view.*
 import kotlinx.android.synthetic.main.landscape_board.view.*
 import no.kristiania.alphonsesantoro.chessbattle.R
 import no.kristiania.alphonsesantoro.chessbattle.adapters.MovesRecyclerAdapter
+import no.kristiania.alphonsesantoro.chessbattle.database.GameLineModel
+import no.kristiania.alphonsesantoro.chessbattle.database.GameLineRepository
+import no.kristiania.alphonsesantoro.chessbattle.database.GameRepository
 import no.kristiania.alphonsesantoro.chessbattle.game.*
 import no.kristiania.alphonsesantoro.chessbattle.game.Color.*
 import no.kristiania.alphonsesantoro.chessbattle.game.GameMode.*
-import no.kristiania.alphonsesantoro.chessbattle.viewmodels.GameViewModel
+import no.kristiania.alphonsesantoro.chessbattle.viewmodels.SharedViewModel
 
 
-class BoardFragment : BaseFragment() {
+class BoardFragment : BaseFragment(), Game.OnPieceMovedListener, SharedViewModel.OnMessageReceivedListener,
+    SensorEventListener {
+
+    private val TAG = "Board"
+
     private var recyclerView: RecyclerView? = null
     private var viewAdapter: RecyclerView.Adapter<MovesRecyclerAdapter.MovesViewHolder>? = null
     private var viewManager: RecyclerView.LayoutManager? = null
 
-    private lateinit var viewModel: GameViewModel
+    private lateinit var boardView: View
     private var gameMode: GameMode = STOCKFISH
     private var perspective: Color = WHITE
-    private var otherUsername: String? = null
-    private lateinit var boardView: View
     private var orientation: Int = -1
-    private var currentPerspectiveLayout: Int = 0
     private var currentMoveIndex: Int? = -1
+    private var currentPerspectiveLayout: Int = 0
+    internal var white: String? = null
+    internal var black: String? = null
+    private var gameId: Long = -1L
+    private var currentUser: FirebaseUser? = null
+    internal var game: Game? = null
+    private lateinit var gameRepository: GameRepository
+    private lateinit var gameLineRepository: GameLineRepository
+    lateinit var moveSound: MediaPlayer
+    private var mShakeTimestamp: Long = System.currentTimeMillis()
+    private var displayingHint = false
+
+    private lateinit var playerTwoKey: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        moveSound = MediaPlayer()
         Uci.newGame()
         arguments?.let {
             gameMode = it.get("gameMode") as GameMode
+            white = it.getString("white")
+            black = it.getString("black")
+            gameId = it.getLong("gameId")
             if (it.get("perspective") != null) perspective = it.get("perspective") as Color
-            otherUsername = it.getString("other_username")
         }
         currentPerspectiveLayout = if (perspective == WHITE) R.layout.white_perspective else R.layout.black_perspective
-        viewModel = ViewModelProviders.of(this).get(GameViewModel::class.java)
-        viewModel.user = sharedViewModel.user!!
-        viewModel.bundle(arguments)
+
+        playerTwoKey = if (perspective == WHITE) {
+            arguments?.getString("black").toString()
+        } else {
+            arguments?.getString("white").toString()
+        }
+        sharedViewModel.init(this)
+
+        val sensorManager = activity?.getSystemService(SENSOR_SERVICE) as SensorManager
+        sensorManager.registerListener(this,
+            sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+            SensorManager.SENSOR_DELAY_GAME)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        if (arguments != null) outState.putAll(arguments)
+        outState.putString("currentFen", fen())
+        outState.putBoolean("restartGame", false)
+        outState.putLong("gameId", game!!.gameId)
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
         setupGame()
-        drawPosition()
+        setRecyclerView()
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        orientation = if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            R.layout.portrait_board
+        } else {
+            R.layout.landscape_board
+        }
+        val view = inflater.inflate(orientation, container, false)
+        boardView = view
+        setupLayout(view, inflater, container)
+        setupNames(view)
+        return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setRecyclerView()
+        setupSettingButtons()
+    }
+
+    override fun onMessageReceived(gameState: GameState) {
+        Log.d(TAG, gameState.toString())
+        if (gameState.fromCoordinate != null && gameState.toCoordinate != null) {
+            game!!.move(gameState.fromCoordinate!!, gameState.toCoordinate!!, gameState.promotePiece)
+        }
     }
 
     private fun setupSettingButtons() {
@@ -70,8 +152,8 @@ class BoardFragment : BaseFragment() {
                 if (gameMode != LIVE) settingsView?.offer_draw?.visibility = View.GONE
                 settingsView?.findViewById<LinearLayout>(R.id.resign_game)?.setOnClickListener {
                     Thread {
-                        viewModel.saveGame(GameStatus.RESIGNED)
-                        viewModel.game!!.gameStatus = GameStatus.RESIGNED
+                        saveGame(GameStatus.RESIGNED)
+                        game!!.gameStatus = GameStatus.RESIGNED
                         activity?.runOnUiThread {
                             dialog.dismiss()
                             showGameOver()
@@ -107,11 +189,11 @@ class BoardFragment : BaseFragment() {
     fun drawSpecificPosition() {
         Thread {
             val moveList = mutableListOf("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
-            viewModel.gameLineRepository.all(viewModel.game!!.gameId).forEach {
+            gameLineRepository.all(game!!.gameId).forEach {
                 if (it.whiteFen != null) moveList.add(it.whiteFen!!)
                 if (it.blackFen != null) moveList.add(it.blackFen!!)
             }
-            if (currentMoveIndex!! > moveList.size - 1 || currentMoveIndex == null) currentMoveIndex = moveList.size - 1
+            if (currentMoveIndex == null || currentMoveIndex!! > moveList.size - 1) currentMoveIndex = moveList.size - 1
             if (currentMoveIndex!! < 0) currentMoveIndex = 0
 
             activity?.runOnUiThread {
@@ -121,52 +203,20 @@ class BoardFragment : BaseFragment() {
     }
 
 
-    fun onPostSetupGame() {
-        viewModel.game?.turn?.observe(this, Observer {
-            drawPosition()
-            isGameOver()
-        })
-        viewModel.gameLineRepository.getGameLines().observe(this, Observer {
-            if (it != null) (viewAdapter as MovesRecyclerAdapter).setData(it)
-        })
-        if (gameMode == STOCKFISH) (viewModel.game as StockfishGame).computerMove()
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        orientation = if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            R.layout.portrait_board
-        } else {
-            R.layout.landscape_board
+    private fun onPostSetupGame() {
+        if (game != null) {
+            with(game!!) {
+                turn.observe(this@BoardFragment, Observer {
+                    drawPosition()
+                    isGameOver()
+                })
+                gameLineRepository.getGameLines().observe(this@BoardFragment, Observer {
+                    if (it != null) (viewAdapter as MovesRecyclerAdapter).setData(it)
+                })
+                colorToMove = Color.fromFen()
+                if (gameMode == STOCKFISH) (this as StockfishGame).computerMove(activity!!)
+            }
         }
-        val view = inflater.inflate(orientation, container, false)
-        boardView = view
-        setupLayout(view, inflater, container)
-        setupNames(view)
-        return view
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        setRecyclerView()
-        setupSettingButtons()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        if (arguments != null) outState.putAll(arguments)
-        outState.putString("currentFen", fen())
-        outState.putBoolean("restartGame", false)
-        outState.putLong("gameId", viewModel.game!!.gameId)
-        super.onSaveInstanceState(outState)
-    }
-
-    override fun onViewStateRestored(savedInstanceState: Bundle?) {
-        super.onViewStateRestored(savedInstanceState)
-        viewModel.bundle(savedInstanceState)
-        setupGame()
-        setRecyclerView(savedInstanceState)
     }
 
     fun drawPosition(board: MutableMap<Coordinate, Square> = Game.board) {
@@ -179,7 +229,7 @@ class BoardFragment : BaseFragment() {
                 } else squareView.setImageResource(square.emptySquareRes)
                 val drawables = mutableListOf<Drawable>()
                 if (square.showForeground) {
-                    if (viewModel.game?.selectedPiece == square.piece) {
+                    if (game?.selectedPiece == square.piece) {
                         drawables.add(
                             boardView.resources.getDrawable(
                                 R.drawable.ic_selected_square,
@@ -193,7 +243,7 @@ class BoardFragment : BaseFragment() {
                     squareView.foreground =
                         boardView.resources.getDrawable(R.drawable.ic_blank_tile, boardView.context.theme)
                 }
-                if (square.piece != null && square.piece == viewModel.game?.lastMovedPiece) {
+                if (square.piece != null && square.piece == game?.lastMovedPiece) {
                     drawables.add(
                         boardView.resources.getDrawable(
                             R.drawable.ic_selected_square,
@@ -208,15 +258,15 @@ class BoardFragment : BaseFragment() {
     }
 
     fun onSquareClick(squareView: ImageView) {
-        if (viewModel.game!!.gameStatus != GameStatus.INPROGRESS) return
+        if (game!!.gameStatus != GameStatus.INPROGRESS) return
         currentMoveIndex = null
-        if (viewModel.game != null) {
-            with(viewModel.game!!) {
+        if (game != null) {
+            with(game!!) {
                 val coord = Coordinate.valueOf(squareView.contentDescription.toString())
                 if (perspective != colorToMove && gameMode != TWO_PLAYER) return // TODO: enable premoving
                 val square = Game.board[coord]!!
                 if (selectedPiece != null && move(selectedPiece!!.coordinate, coord) && Game.isPromotion) {
-                    showPromotePopup(viewModel.game?.fromCoordinate!!, viewModel.game?.toCoordinate!!)
+                    showPromotePopup(fromCoordinate!!, toCoordinate!!)
                     return
                 }
                 if (square.piece == null) {
@@ -240,9 +290,9 @@ class BoardFragment : BaseFragment() {
         val alert = AlertDialog.Builder(ContextThemeWrapper(activity, R.style.AppTheme))
         alert.setTitle("Game Over")
         val win =
-            if (viewModel.game?.colorToMove == perspective && Game.isChecked || viewModel.game?.gameStatus == GameStatus.RESIGNED) {
+            if (game?.colorToMove == perspective && Game.isChecked || game?.gameStatus == GameStatus.RESIGNED) {
                 "You lost"
-            } else if (viewModel.game?.colorToMove != perspective && Game.isChecked) {
+            } else if (game?.colorToMove != perspective && Game.isChecked) {
                 "You win"
             } else "Stale mate"
         alert.setMessage(win)
@@ -280,22 +330,22 @@ class BoardFragment : BaseFragment() {
         val pw = PopupWindow(contentView, point.x / 8, point.x / 2, true)
         pw.showAsDropDown(coord, Gravity.CENTER, 0, 0)
         contentView.promote_queen.setOnClickListener {
-            viewModel.game?.move(fromCoordinate, toCoordinate, 'Q')
+            game?.move(fromCoordinate, toCoordinate, 'Q')
             drawPosition()
             pw.dismiss()
         }
         contentView.promote_rook.setOnClickListener {
-            viewModel.game?.move(fromCoordinate, toCoordinate, 'R')
+            game?.move(fromCoordinate, toCoordinate, 'R')
             drawPosition()
             pw.dismiss()
         }
         contentView.promote_knight.setOnClickListener {
-            viewModel.game?.move(fromCoordinate, toCoordinate, 'N')
+            game?.move(fromCoordinate, toCoordinate, 'N')
             drawPosition()
             pw.dismiss()
         }
         contentView.promote_bishop.setOnClickListener {
-            viewModel.game?.move(fromCoordinate, toCoordinate, 'B')
+            game?.move(fromCoordinate, toCoordinate, 'B')
             drawPosition()
             pw.dismiss()
         }
@@ -304,33 +354,28 @@ class BoardFragment : BaseFragment() {
     fun setupNames(view: View) {
         when (gameMode) {
             LIVE -> {
-                // TODO: Get game names
-                if (perspective == WHITE) {
-                    setNames(view, viewModel.user.userName, "")
-                } else {
-                    setNames(view, "", viewModel.user.userName)
-                }
+                setNames(view, white!!, black!!)
             }
             STOCKFISH -> {
                 if (perspective == WHITE) {
-                    setNames(view, viewModel.user.userName, "Stockfish")
+                    setNames(view, sharedViewModel.user!!.userName, "Stockfish")
                 } else {
-                    setNames(view, "Stockfish", viewModel.user.userName)
+                    setNames(view, "Stockfish", sharedViewModel.user!!.userName)
                 }
             }
             TWO_PLAYER -> {
                 if (perspective == WHITE) {
-                    setNames(view, viewModel.user.userName, getString(R.string.playerTwo))
+                    setNames(view, sharedViewModel.user!!.userName, getString(R.string.playerTwo))
                 } else {
-                    setNames(view, getString(R.string.playerTwo), viewModel.user.userName)
+                    setNames(view, getString(R.string.playerTwo), sharedViewModel.user!!.userName)
                 }
             }
         }
     }
 
     fun setNames(view: View, whiteName: String, blackName: String) {
-        viewModel.white = whiteName
-        viewModel.black = blackName
+        white = whiteName
+        black = blackName
         view.findViewById<TextView>(R.id.nameWhite)?.text = whiteName
         view.findViewById<TextView>(R.id.nameBlack)?.text = blackName
     }
@@ -359,8 +404,8 @@ class BoardFragment : BaseFragment() {
 
     private fun setupGame() {
         Thread {
-            viewModel.setupGame()
-            viewModel.saveGame()
+            initializeGame()
+            saveGame()
             setUciFenFromMoves()
             Game.board = Game.getBoardFromFen(Uci.fen())
             setRecyclerView()
@@ -369,7 +414,7 @@ class BoardFragment : BaseFragment() {
     }
 
     private fun setUciFenFromMoves() {
-        val moves = viewModel.gameLineRepository.all(viewModel.game!!.gameId)
+        val moves = gameLineRepository.all(game!!.gameId)
         if (moves.isNotEmpty()) {
             var position = "startpos moves"
             moves.forEach { position += " ${it.whiteMove} ${it.blackMove}" }
@@ -379,12 +424,7 @@ class BoardFragment : BaseFragment() {
         }
     }
 
-    private fun setRecyclerView(savedInstanceState: Bundle? = null) {
-//        if (savedInstanceState != null && viewModel.game!!.moves.isEmpty()) {
-//            savedInstanceState.getStringArray("moves")?.mapIndexed { i, m ->
-//                viewModel.game!!.moves[i.toString()] = m
-//            }
-//        }
+    private fun setRecyclerView() {
         viewManager = LinearLayoutManager(context)
         viewAdapter = MovesRecyclerAdapter(emptyList())
         recyclerView = view?.findViewById(R.id.moveList)
@@ -394,10 +434,182 @@ class BoardFragment : BaseFragment() {
         }
     }
 
+    private fun initializeGame() {
+        when (gameMode) {
+            LIVE -> {
+                currentUser = FirebaseAuth.getInstance().currentUser
+                game = LiveGame(perspective, GameStatus.INPROGRESS, onPieceMovedListener = this)
+            }
+            STOCKFISH -> {
+                game = StockfishGame(perspective, GameStatus.INPROGRESS, onPieceMovedListener = this)
+                if (perspective == WHITE) {
+                    white = sharedViewModel.user!!.userName
+                    black = STOCKFISH.name.capitalize()
+                } else {
+                    white = STOCKFISH.name.capitalize()
+                    black = sharedViewModel.user!!.userName
+                }
+            }
+            TWO_PLAYER -> {
+                game = TwoPlayerGame(perspective, GameStatus.INPROGRESS, onPieceMovedListener = this)
+                white = sharedViewModel.user!!.userName
+                black = "Player two"
+            }
+        }
+        game!!.gameId = gameId
+    }
+
+    private fun saveGame(status: GameStatus? = null) {
+        gameRepository = GameRepository(activity!!.application, sharedViewModel.user!!.id!!)
+        with(game!!) {
+            android.util.Log.i("GameViewModel", gameId.toString())
+            if (gameId == -1L) {
+                val gameModel = no.kristiania.alphonsesantoro.chessbattle.database.GameModel(
+                    white = white!!,
+                    black = black!!,
+                    userId = sharedViewModel.user!!.id!!,
+                    status = no.kristiania.alphonsesantoro.chessbattle.game.GameStatus.INPROGRESS,
+                    type = gameMode.name,
+                    perspective = perspective.name
+                )
+                game!!.gameId = gameRepository.insert(gameModel)
+
+            } else if (status != null) {
+                val gameModel = gameRepository.find(gameId)!!
+                gameModel.status = status
+                gameRepository.update(gameModel)
+            }
+            gameLineRepository = no.kristiania.alphonsesantoro.chessbattle.database.GameLineRepository(
+                activity!!.application,
+                game!!.gameId
+            )
+        }
+    }
+
+
+    override fun onPieceMoved(gameId: Long, colorToMove: Color, move: String) {
+        moveSound = MediaPlayer.create(context!!, R.raw.move_piece)
+        moveSound.start()
+        Thread {
+            if (colorToMove == WHITE) {
+                gameLineRepository.insert(GameLineModel(whiteMove = move, gameId = gameId, whiteFen = fen()))
+            } else {
+                val gameLine = gameLineRepository.getGameLines().value!!.last()
+                gameLine.blackMove = move
+                gameLine.blackFen = Uci.fen()
+                gameLineRepository.update(gameLine)
+            }
+            Log.d(TAG, "Move: $move")
+            if(game is LiveGame){
+                val promotePiece = if (move.length > 4) move.last() else null
+                val gameState = GameState(
+                    Uci.fen(),
+                    Coordinate.fromString(move.substring(0, 2)),
+                    Coordinate.fromString(move.substring(2, 4)),
+                    promotePiece,
+                    white!!,
+                    black!!,
+                    sharedViewModel.whiteId!!,
+                    sharedViewModel.blackId!!,
+                    sharedViewModel.roomId
+                )
+                sharedViewModel.mRealTimeMultiplayerClient.sendReliableMessage(
+                    Gson().toJson(gameState).toByteArray(),
+                    sharedViewModel.roomId!!,
+                    (if (perspective == WHITE) sharedViewModel.blackId else sharedViewModel.whiteId)!!,
+                    sharedViewModel.handleMessageSentCallback
+                ).addOnCompleteListener {
+                    sharedViewModel.recordMessageToken(it.result!!)
+                }
+            }
+        }.start()
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+        // Ignore
+    }
+
+    // https://stackoverflow.com/questions/5271448/how-to-detect-shake-event-with-android
+    override fun onSensorChanged(event: SensorEvent?) {
+        if (event?.sensor?.type == Sensor.TYPE_ACCELEROMETER) {
+            val x = event.values[0]
+			val y = event.values[1]
+			val z = event.values[2]
+
+			val gX = x / SensorManager.GRAVITY_EARTH
+			val gY = y / SensorManager.GRAVITY_EARTH
+			val gZ = z / SensorManager.GRAVITY_EARTH
+
+			// gForce will be close to 1 when there is no movement.
+			val gForce = Math.sqrt((gX * gX + gY * gY + gZ * gZ).toDouble())
+
+			if (gForce > SHAKE_THRESHOLD_GRAVITY) {
+				val now = System.currentTimeMillis()
+				// ignore shake events too close to each other (500ms)
+				if (mShakeTimestamp + SHAKE_SLOP_TIME_MS > now) {
+					return
+				}
+				mShakeTimestamp = now
+                onShake()
+			}
+          }
+    }
+
+    private fun onShake() {
+        if(!displayingHint){
+            displayingHint = true
+            Thread {
+                Game.board.forEach { _, s ->
+                    s.foregroundResource = R.drawable.ic_blank_tile
+                    s.showForeground = false
+                }
+                game!!.uciListener.output.clear()
+                Uci.go("depth 7")
+                var bestMove: String?
+                while (true) {
+                    bestMove = game!!.uciListener.output.lastOrNull()
+                    if(bestMove != null){
+                        if(bestMove.startsWith("bestmove")){
+                            bestMove = bestMove.split(" ")[1]
+                            Uci.stop()
+                            break
+                        } else if(bestMove.startsWith("info depth 7 currmove") && bestMove.endsWith("currmovenumber 1")){
+                            bestMove = bestMove.split(" ")[4]
+                            Uci.stop()
+                            break
+                        }
+                    }
+                    Log.d(TAG, "Bestmove: $bestMove")
+                }
+                val from = Coordinate.valueOf(bestMove!!.substring(0, 2))
+                val to = Coordinate.valueOf(bestMove.substring(2, 4))
+                with(Game.board[from]!!){
+                    showForeground = true
+                    foregroundResource = R.drawable.ic_square_hint
+                }
+                with(Game.board[to]!!){
+                    showForeground = true
+                    foregroundResource = R.drawable.ic_square_hint
+                }
+                activity?.runOnUiThread {
+                    Log.d(TAG, "Displaying hint: $bestMove")
+                    drawPosition()
+                    displayingHint = false
+                }
+            }.start()
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
+        moveSound.release()
         Log.i("Board", "Stopping stockfish")
         Uci.stop() // Need to make sure that stockfish stops thinking so that it doesn't crash
         // No guarantees, need to modify the native code to catch exception as a java exception instead of JNI exception
+    }
+
+    companion object {
+        private const val SHAKE_THRESHOLD_GRAVITY = 2.7F
+        private const val SHAKE_SLOP_TIME_MS = 500
     }
 }

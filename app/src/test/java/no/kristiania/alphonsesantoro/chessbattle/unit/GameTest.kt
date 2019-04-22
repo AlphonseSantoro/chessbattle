@@ -4,6 +4,7 @@ import jstockfish.Uci
 import no.kristiania.alphonsesantoro.chessbattle.game.Color
 import no.kristiania.alphonsesantoro.chessbattle.game.Coordinate
 import no.kristiania.alphonsesantoro.chessbattle.game.Game
+import no.kristiania.alphonsesantoro.chessbattle.game.GameStatus
 import no.kristiania.alphonsesantoro.chessbattle.game.pieces.Pawn
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -27,7 +28,7 @@ class GameTest {
 //        PowerMockito.mockStatic(Uci::class.java)
 //        Mockito.`when`(Uci.position(any())).thenReturn(true)
 //        Mockito.`when`(Uci.fen()).thenReturn("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
-        gameMock = Mockito.spy(Game(Color.WHITE))
+        gameMock = Mockito.spy(Game(Color.WHITE, GameStatus.INPROGRESS, null))
     }
 
     @Test
